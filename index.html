@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterMaths 2026 — Global Selection Dashboard</title>
+  <meta name="description" content="EMJMD InterMaths 2026 Network — Interactive global selection analytics dashboard. 319 applicants, 64 countries, 20 scholarships.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #07090f;
+      --bg2: #0d111c;
+      --surface: #131825;
+      --surface2: #1a2035;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.14);
+      --accent: #3b82f6;
+      --accent2: #8b5cf6;
+      --accent3: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glowing orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(59,130,246,0.1); top: -100px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(139,92,246,0.08); bottom: -50px; left: -80px; animation-delay: 3s; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(16,185,129,0.06); top: 40%; left: 30%; animation-delay: 5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    /* HEADER */
+    header {
+      padding: 40px 0 32px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+
+    .header-left {}
+
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .header-tag::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, rgba(59,130,246,0.9) 60%, rgba(139,92,246,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-sub {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--text2);
+      max-width: 560px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 8px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--green);
+      letter-spacing: 0.06em;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+      50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+    }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      cursor: default;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .kpi-card.blue::before { background: linear-gradient(90deg, var(--accent), #60a5fa); }
+    .kpi-card.purple::before { background: linear-gradient(90deg, var(--accent2), #a78bfa); }
+    .kpi-card.amber::before { background: linear-gradient(90deg, var(--accent3), #fbbf24); }
+    .kpi-card.green::before { background: linear-gradient(90deg, var(--green), #34d399); }
+
+    .kpi-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border-color: var(--border2);
+    }
+
+    .kpi-icon {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+    .kpi-value {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .kpi-card.blue .kpi-value { color: var(--accent); }
+    .kpi-card.purple .kpi-value { color: #a78bfa; }
+    .kpi-card.amber .kpi-value { color: var(--accent3); }
+    .kpi-card.green .kpi-value { color: var(--green); }
+
+    .kpi-label {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* PAKISTAN BANNER */
+    .pak-banner {
+      background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(139,92,246,0.06) 100%);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 16px;
+      padding: 20px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      transition: border-color 0.3s;
+    }
+    .pak-banner:hover { border-color: rgba(59,130,246,0.35); }
+
+    .pak-flag { font-size: 2.2rem; }
+
+    .pak-info { flex: 1; }
+    .pak-info h3 {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .pak-info p {
+      font-size: 0.82rem;
+      color: var(--text2);
+    }
+
+    .pak-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      border: 1px solid;
+    }
+    .chip-blue { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.25); color: #60a5fa; }
+    .chip-amber { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #fbbf24; }
+    .chip-green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #34d399; }
+
+    /* CHARTS */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .charts-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.3s;
+    }
+    .card:hover { border-color: var(--border2); }
+
+    .card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 300px;
+    }
+    .chart-wrap-sm {
+      position: relative;
+      height: 240px;
+    }
+
+    /* TOP PERFORMERS */
+    .top-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .top-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      cursor: default;
+    }
+    .top-item:hover {
+      transform: translateX(4px);
+      border-color: rgba(16,185,129,0.3);
+      background: rgba(16,185,129,0.04);
+    }
+    .top-medal { font-size: 1.4rem; flex-shrink: 0; }
+    .top-info { flex: 1; }
+    .top-id { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+    .top-country { font-size: 0.75rem; color: var(--text3); margin-top: 2px; }
+    .top-score { text-align: right; }
+    .top-score-val { font-size: 1.3rem; font-weight: 800; color: var(--green); line-height: 1; }
+    .top-score-lbl { font-size: 0.6rem; color: var(--text3); font-family: 'Roboto Mono', monospace; text-transform: uppercase; }
+
+    /* TABLE */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 0;
+    }
+
+    .table-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .tab-btn {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { border-color: var(--border2); color: var(--text); }
+    .tab-btn.active {
+      background: rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.35);
+      color: #60a5fa;
+    }
+
+    .search-input {
+      margin-left: auto;
+      padding: 7px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      outline: none;
+      width: 180px;
+      transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+
+    .sort-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .sort-lbl {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .sort-btn {
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text3);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.68rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sort-btn:hover { color: var(--text2); border-color: var(--border2); }
+    .sort-btn.active {
+      background: rgba(59,130,246,0.1);
+      border-color: rgba(59,130,246,0.3);
+      color: var(--accent);
+    }
+    .row-count {
+      margin-left: auto;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text3);
+    }
+
+    .table-scroll {
+      max-height: 440px;
+      overflow-y: auto;
+      border-radius: 8px;
+    }
+    .table-scroll::-webkit-scrollbar { width: 6px; }
+    .table-scroll::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 10px 12px;
+      text-align: left;
+      background: var(--surface);
+      color: var(--text3);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    thead th.r { text-align: right; }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .td-r { text-align: right; }
+    .td-country { font-weight: 600; color: var(--text); white-space: nowrap; }
+    .td-num { color: var(--text2); }
+    .td-im { color: var(--accent); font-weight: 600; text-align: right; }
+    .td-mm { color: #a78bfa; text-align: right; }
+
+    .you-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      background: rgba(59,130,246,0.15);
+      color: #60a5fa;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-family: 'Roboto Mono', monospace;
+      vertical-align: middle;
+    }
+
+    .scholar-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .rate-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 110px;
+    }
+    .rate-num { font-size: 0.78rem; font-weight: 600; min-width: 34px; }
+    .rate-bar-wrap { flex: 1; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
+    .rate-bar { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+
+    /* PAK ROW highlight */
+    .pak-row { background: rgba(59,130,246,0.04) !important; border-left: 2px solid var(--accent); }
+    .pak-row:hover { background: rgba(59,130,246,0.1) !important; }
+
+    /* FOOTER */
+    footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-left {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text3);
+    }
+    .footer-left a { color: var(--accent); text-decoration: none; }
+    .footer-left a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text3);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+      .charts-row-2 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.6rem; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .pak-banner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="page-wrap">
+
+    <!-- HEADER -->
+    <header>
+      <div class="header-left">
+        <div class="header-tag">EMJMD Network · 2026 Intake</div>
+        <h1>InterMaths Global Selection</h1>
+        <p class="header-sub">Final selection results from the Evaluation Committee · 319 applicants from 64 countries · 20 EMJM Scholarships awarded</p>
+      </div>
+      <div class="header-right">
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          INTERACTIVE
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-icon">🌍</div>
+        <div class="kpi-value" id="kpi-total">0</div>
+        <div class="kpi-label">Total Applicants</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-icon">🗺️</div>
+        <div class="kpi-value" id="kpi-countries">0</div>
+        <div class="kpi-label">Countries Represented</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-value" id="kpi-scholarships">0</div>
+        <div class="kpi-label">Scholarships Awarded</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value" id="kpi-avg">0</div>
+        <div class="kpi-label">Average Score</div>
+      </div>
+    </div>
+
+    <!-- PAK BANNER -->
+    <div class="pak-banner">
+      <div class="pak-flag">🇵🇰</div>
+      <div class="pak-info">
+        <h3>Pakistan — Largest Applicant Pool in 2026 Selection</h3>
+        <p>35 applicants · Avg score 71.03 · Max score 88.57 · Best rank #34 · 10 IM selected · 60% selection rate</p>
+      </div>
+      <div class="pak-chips">
+        <span class="chip chip-blue">35 Applicants</span>
+        <span class="chip chip-amber">#1 Country Volume</span>
+        <span class="chip chip-green">60% Sel. Rate</span>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">📊 Applicants by Country <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">(Top 15)</span></div>
+        <div class="chart-wrap"><canvas id="chart-country"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Avg Score by Country <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">(Top 15 by score)</span></div>
+        <div class="chart-wrap"><canvas id="chart-score"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="charts-row-2">
+      <div class="card">
+        <div class="card-title">🎯 Program Distribution</div>
+        <div class="chart-wrap-sm"><canvas id="chart-program"></canvas></div>
+        <div id="program-totals" style="margin-top:12px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🥇 Top 5 Performers</div>
+        <div class="top-list" id="top-list"></div>
+      </div>
+    </div>
+
+    <!-- DATA TABLE -->
+    <div class="table-card">
+      <div class="table-controls">
+        <button class="tab-btn active" onclick="switchTab(this,'all')">All Countries</button>
+        <button class="tab-btn" onclick="switchTab(this,'awarded')">🏆 Scholarship Winners</button>
+        <button class="tab-btn" onclick="switchTab(this,'top')">⭐ Top Scorers (≥85)</button>
+        <button class="tab-btn" onclick="switchTab(this,'selected')">✅ IM Selected</button>
+        <input class="search-input" id="search-box" type="text" placeholder="🔍 Search country…" oninput="filterTable()">
+      </div>
+      <div class="sort-row">
+        <span class="sort-lbl">Sort:</span>
+        <button class="sort-btn active" id="sort-apps" onclick="sortBy('Total_Applicants', this)">Applicants</button>
+        <button class="sort-btn" id="sort-avg" onclick="sortBy('Avg_Score', this)">Avg Score</button>
+        <button class="sort-btn" id="sort-sch" onclick="sortBy('Scholarships_Awarded', this)">Scholarships</button>
+        <button class="sort-btn" id="sort-rate" onclick="sortBy('Selection_Rate', this)">Sel. Rate</button>
+        <span class="row-count" id="row-count"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th class="r">Apps</th>
+              <th class="r">Avg</th>
+              <th class="r">Max</th>
+              <th class="r">IM</th>
+              <th class="r">MM</th>
+              <th class="r">RM</th>
+              <th class="r">🏆</th>
+              <th>Sel. Rate</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-left">
+        EMJMD InterMaths Network · 2026 Intake · Data source: Official selection list ·
+        Portfolio: <a href="https://nomantabassum38.github.io" target="_blank">nomantabassum38.github.io</a>
+      </div>
+      <div class="footer-right">Built by M. Noman Tabassum · 2026</div>
+    </footer>
+
+  </div>
+
+  <script>
+  const DATA = [
+    {c:"PAKISTAN",   flag:"🇵🇰", n:35, avg:71.03, max:88.57, im:10, mm:18, rm:35, sch:0, rank:34,  rate:60.0},
+    {c:"NIGERIA",    flag:"🇳🇬", n:30, avg:67.89, max:85.95, im:11, mm:17, rm:30, sch:0, rank:64,  rate:64.4},
+    {c:"Cameroon",   flag:"🇨🇲", n:29, avg:64.20, max:87.13, im:8,  mm:15, rm:29, sch:1, rank:50,  rate:59.8},
+    {c:"UGANDA",     flag:"🇺🇬", n:16, avg:67.74, max:84.09, im:4,  mm:9,  rm:16, sch:0, rank:89,  rate:60.4},
+    {c:"INDIA",      flag:"🇮🇳", n:13, avg:71.76, max:90.44, im:5,  mm:8,  rm:13, sch:1, rank:17,  rate:66.7},
+    {c:"Rwanda",     flag:"🇷🇼", n:10, avg:63.23, max:81.44, im:2,  mm:6,  rm:10, sch:0, rank:111, rate:60.0},
+    {c:"IRAN",       flag:"🇮🇷", n:10, avg:68.48, max:87.40, im:4,  mm:5,  rm:10, sch:0, rank:45,  rate:63.3},
+    {c:"Kazakhstan", flag:"🇰🇿", n:9,  avg:72.40, max:91.25, im:3,  mm:6,  rm:9,  sch:2, rank:14,  rate:66.7},
+    {c:"Spain",      flag:"🇪🇸", n:9,  avg:86.14, max:96.69, im:7,  mm:8,  rm:9,  sch:2, rank:4,   rate:88.9},
+    {c:"BANGLADESH", flag:"🇧🇩", n:8,  avg:76.93, max:85.75, im:4,  mm:7,  rm:8,  sch:0, rank:68,  rate:79.2},
+    {c:"VIETNAM",    flag:"🇻🇳", n:8,  avg:78.84, max:95.83, im:3,  mm:7,  rm:8,  sch:2, rank:6,   rate:75.0},
+    {c:"USA",        flag:"🇺🇸", n:7,  avg:85.22, max:94.59, im:6,  mm:6,  rm:7,  sch:1, rank:8,   rate:90.5},
+    {c:"Sri Lanka",  flag:"🇱🇰", n:7,  avg:60.13, max:82.05, im:2,  mm:2,  rm:7,  sch:0, rank:106, rate:52.4},
+    {c:"Egypt",      flag:"🇪🇬", n:7,  avg:65.66, max:84.30, im:2,  mm:3,  rm:7,  sch:0, rank:87,  rate:57.1},
+    {c:"China",      flag:"🇨🇳", n:7,  avg:81.68, max:89.93, im:5,  mm:6,  rm:7,  sch:0, rank:22,  rate:85.7},
+    {c:"Italy",      flag:"🇮🇹", n:6,  avg:91.68, max:99.55, im:6,  mm:6,  rm:6,  sch:2, rank:1,   rate:100.0},
+    {c:"GERMANY",    flag:"🇩🇪", n:6,  avg:87.48, max:93.81, im:5,  mm:6,  rm:6,  sch:2, rank:11,  rate:88.9},
+    {c:"COLOMBIA",   flag:"🇨🇴", n:6,  avg:83.46, max:88.79, im:5,  mm:6,  rm:6,  sch:1, rank:31,  rate:94.4},
+    {c:"Mexico",     flag:"🇲🇽", n:6,  avg:81.35, max:87.35, im:3,  mm:5,  rm:6,  sch:0, rank:46,  rate:77.8},
+    {c:"ECUADOR",    flag:"🇪🇨", n:6,  avg:77.20, max:85.38, im:3,  mm:5,  rm:6,  sch:0, rank:74,  rate:77.8},
+    {c:"Russia",     flag:"🇷🇺", n:5,  avg:87.26, max:94.32, im:4,  mm:5,  rm:5,  sch:1, rank:9,   rate:93.3},
+    {c:"Ukraine",    flag:"🇺🇦", n:5,  avg:85.37, max:88.69, im:3,  mm:4,  rm:5,  sch:0, rank:32,  rate:80.0},
+    {c:"Turkey",     flag:"🇹🇷", n:5,  avg:76.15, max:86.15, im:2,  mm:3,  rm:5,  sch:0, rank:60,  rate:66.7},
+    {c:"Ethiopia",   flag:"🇪🇹", n:5,  avg:71.21, max:86.05, im:2,  mm:3,  rm:5,  sch:0, rank:62,  rate:66.7},
+    {c:"UK",         flag:"🇬🇧", n:4,  avg:88.20, max:90.30, im:3,  mm:4,  rm:4,  sch:0, rank:19,  rate:91.7},
+    {c:"AUSTRALIA",  flag:"🇦🇺", n:4,  avg:87.50, max:96.00, im:3,  mm:4,  rm:4,  sch:1, rank:5,   rate:91.7},
+    {c:"KoreaSouth", flag:"🇰🇷", n:4,  avg:89.41, max:95.62, im:4,  mm:4,  rm:4,  sch:1, rank:7,   rate:100.0},
+    {c:"SouthAfrica",flag:"🇿🇦", n:4,  avg:85.43, max:89.76, im:3,  mm:4,  rm:4,  sch:1, rank:24,  rate:91.7},
+    {c:"Croatia",    flag:"🇭🇷", n:3,  avg:90.25, max:98.74, im:3,  mm:3,  rm:3,  sch:1, rank:3,   rate:100.0},
+    {c:"Belgium",    flag:"🇧🇪", n:3,  avg:83.03, max:87.05, im:2,  mm:3,  rm:3,  sch:0, rank:51,  rate:88.9},
+    {c:"ARGENTINA",  flag:"🇦🇷", n:3,  avg:76.12, max:88.50, im:2,  mm:2,  rm:3,  sch:0, rank:35,  rate:77.8},
+    {c:"France",     flag:"🇫🇷", n:3,  avg:76.83, max:84.50, im:2,  mm:2,  rm:3,  sch:0, rank:84,  rate:77.8},
+    {c:"GHANA",      flag:"🇬🇭", n:3,  avg:70.87, max:82.10, im:1,  mm:2,  rm:3,  sch:0, rank:105, rate:66.7},
+    {c:"Latvia",     flag:"🇱🇻", n:3,  avg:86.84, max:86.84, im:1,  mm:1,  rm:1,  sch:0, rank:55,  rate:100.0},
+    {c:"Indonesia",  flag:"🇮🇩", n:3,  avg:66.38, max:74.90, im:0,  mm:1,  rm:3,  sch:0, rank:131, rate:44.4},
+    {c:"Kenya",      flag:"🇰🇪", n:3,  avg:60.58, max:69.40, im:0,  mm:1,  rm:3,  sch:0, rank:174, rate:44.4},
+    {c:"ALGERIA",    flag:"🇩🇿", n:4,  avg:73.21, max:80.83, im:2,  mm:3,  rm:4,  sch:0, rank:116, rate:75.0},
+    {c:"Brazil",     flag:"🇧🇷", n:4,  avg:71.58, max:81.95, im:2,  mm:3,  rm:4,  sch:0, rank:108, rate:75.0},
+    {c:"Lebanon",    flag:"🇱🇧", n:4,  avg:72.58, max:86.90, im:2,  mm:2,  rm:4,  sch:0, rank:54,  rate:66.7},
+    {c:"Kosovo",     flag:"🇽🇰", n:4,  avg:80.70, max:80.70, im:1,  mm:1,  rm:1,  sch:1, rank:118, rate:100.0},
+    {c:"Ireland",    flag:"🇮🇪", n:4,  avg:80.37, max:90.14, im:3,  mm:3,  rm:4,  sch:0, rank:21,  rate:83.3},
+    {c:"Chile",      flag:"🇨🇱", n:3,  avg:72.40, max:72.40, im:0,  mm:1,  rm:1,  sch:0, rank:152, rate:66.7},
+    {c:"Sweden",     flag:"🇸🇪", n:3,  avg:74.10, max:74.10, im:0,  mm:1,  rm:1,  sch:0, rank:138, rate:66.7},
+    {c:"Malaysia",   flag:"🇲🇾", n:3,  avg:61.30, max:65.40, im:0,  mm:0,  rm:3,  sch:0, rank:203, rate:100.0},
+    {c:"Serbia",     flag:"🇷🇸", n:3,  avg:61.50, max:62.50, im:0,  mm:0,  rm:3,  sch:0, rank:221, rate:100.0},
+    {c:"Poland",     flag:"🇵🇱", n:3,  avg:65.60, max:65.60, im:0,  mm:0,  rm:1,  sch:0, rank:202, rate:33.3},
+    {c:"Morocco",    flag:"🇲🇦", n:3,  avg:51.25, max:51.25, im:0,  mm:0,  rm:1,  sch:0, rank:306, rate:33.3},
+    {c:"NEPAL",      flag:"🇳🇵", n:3,  avg:74.00, max:74.00, im:0,  mm:1,  rm:1,  sch:0, rank:139, rate:66.7},
+    {c:"Palestine",  flag:"🇵🇸", n:3,  avg:76.01, max:83.27, im:1,  mm:1,  rm:3,  sch:0, rank:96,  rate:55.6},
+  ];
+
+  const TOP5 = [
+    {rank:1, id:"2503059", country:"Italy",     flag:"🇮🇹", score:99.55, scholarship:true},
+    {rank:2, id:"2522846", country:"Italy",     flag:"🇮🇹", score:99.16, scholarship:true},
+    {rank:3, id:"2457953", country:"Croatia",   flag:"🇭🇷", score:98.74, scholarship:true},
+    {rank:4, id:"2514655", country:"Spain",     flag:"🇪🇸", score:96.69, scholarship:true},
+    {rank:5, id:"2521687", country:"Australia", flag:"🇦🇺", score:96.00, scholarship:true},
+  ];
+
+  let currentData = [...DATA];
+  let sortCol = 'n';
+  let sortDir = -1;
+
+  // ─── ANIMATED COUNTER ───────────────────────────────────────────
+  function counter(id, target, dec, delay) {
+    setTimeout(() => {
+      let start, dur = 1400;
+      const el = document.getElementById(id);
+      const step = ts => {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / dur, 1);
+        el.textContent = (p * target).toFixed(dec);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, delay);
+  }
+
+  // ─── CHARTS ─────────────────────────────────────────────────────
+  function initCharts() {
+    const gridCol = 'rgba(255,255,255,0.05)';
+    const tickCol = '#475569';
+
+    // Applicants bar
+    const top15 = DATA.slice(0, 15);
+    new Chart(document.getElementById('chart-country'), {
+      type: 'bar',
+      data: {
+        labels: top15.map(d => d.flag + ' ' + d.c),
+        datasets: [{
+          data: top15.map(d => d.n),
+          backgroundColor: top15.map((d, i) =>
+            d.c === 'PAKISTAN' ? 'rgba(59,130,246,1)' : `hsla(${210 + i * 9},65%,60%,0.75)`
+          ),
+          borderWidth: 0, borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y} applicants` } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: gridCol }, ticks: { color: tickCol } },
+          x: { grid: { display: false }, ticks: { color: tickCol, maxRotation: 45, font: { size: 10 } } }
+        }
+      }
+    });
+
+    // Score bar
+    const scoreTop = [...DATA].sort((a, b) => b.avg - a.avg).slice(0, 15);
+    new Chart(document.getElementById('chart-score'), {
+      type: 'bar',
+      data: {
+        labels: scoreTop.map(d => d.flag + ' ' + d.c),
+        datasets: [{
+          data: scoreTop.map(d => d.avg),
+          backgroundColor: scoreTop.map(d =>
+            d.avg >= 90 ? 'rgba(16,185,129,0.85)' :
+            d.avg >= 85 ? 'rgba(59,130,246,0.85)' :
+            d.avg >= 75 ? 'rgba(245,158,11,0.85)' :
+            'rgba(239,68,68,0.75)'
+          ),
+          borderWidth: 0, borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `Score: ${c.parsed.y}` } } },
+        scales: {
+          y: { beginAtZero: true, max: 100, grid: { color: gridCol }, ticks: { color: tickCol } },
+          x: { grid: { display: false }, ticks: { color: tickCol, maxRotation: 45, font: { size: 10 } } }
+        }
+      }
+    });
+
+    // Doughnut
+    const totalIM = DATA.reduce((s, d) => s + d.im, 0);
+    const totalMM = DATA.reduce((s, d) => s + d.mm, 0);
+    const totalRM = DATA.reduce((s, d) => s + d.rm, 0);
+    new Chart(document.getElementById('chart-program'), {
+      type: 'doughnut',
+      data: {
+        labels: ['InterMaths (IM)', 'MathMods (MM)', 'RealMaths (RM)'],
+        datasets: [{ data: [totalIM, totalMM, totalRM], backgroundColor: ['rgba(59,130,246,0.85)', 'rgba(139,92,246,0.85)', 'rgba(16,185,129,0.85)'], borderWidth: 0 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 10 } } }
+      }
+    });
+
+    // Program totals under chart
+    document.getElementById('program-totals').innerHTML = [
+      { label: 'IM', val: totalIM, color: '#3b82f6' },
+      { label: 'MM', val: totalMM, color: '#8b5cf6' },
+      { label: 'RM', val: totalRM, color: '#10b981' }
+    ].map(p => `<span style="font-family:'Roboto Mono',monospace;font-size:0.7rem;color:${p.color};background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:6px;border:1px solid ${p.color}33;">${p.label}: ${p.val}</span>`).join('');
+  }
+
+  // ─── TOP PERFORMERS ──────────────────────────────────────────────
+  function renderTop() {
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+    const golds = ['rgba(255,215,0,0.15)', 'rgba(192,192,192,0.12)', 'rgba(205,127,50,0.12)', 'rgba(59,130,246,0.06)', 'rgba(59,130,246,0.06)'];
+    document.getElementById('top-list').innerHTML = TOP5.map((p, i) => `
+      <div class="top-item" style="background:${golds[i]}">
+        <div class="top-medal">${medals[i]}</div>
+        <div class="top-info">
+          <div class="top-id">ID: ${p.id}</div>
+          <div class="top-country">${p.flag} ${p.country}${p.scholarship ? ' · 🏆 Scholarship' : ''}</div>
+        </div>
+        <div class="top-score">
+          <div class="top-score-val">${p.score}</div>
+          <div class="top-score-lbl">Score</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ─── TABLE ───────────────────────────────────────────────────────
+  function renderTable(data) {
+    data = data || currentData;
+    document.getElementById('row-count').textContent = `${data.length} / ${DATA.length} countries`;
+    document.getElementById('table-body').innerHTML = data.map(row => {
+      const isPak = row.c === 'PAKISTAN';
+      const rate = row.rate;
+      const rc = rate >= 80 ? '#10b981' : rate >= 60 ? '#f59e0b' : '#ef4444';
+      return `<tr class="${isPak ? 'pak-row' : ''}">
+        <td class="td-country">${row.flag} ${row.c}${isPak ? '<span class="you-badge">YOU</span>' : ''}</td>
+        <td class="td-num td-r">${row.n}</td>
+        <td class="td-num td-r">${row.avg}</td>
+        <td class="td-num td-r">${row.max}</td>
+        <td class="td-im">${row.im}</td>
+        <td class="td-mm td-r">${row.mm}</td>
+        <td class="td-num td-r">${row.rm}</td>
+        <td class="td-r">${row.sch > 0 ? `<span class="scholar-badge">${row.sch}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+        <td>
+          <div class="rate-cell">
+            <span class="rate-num" style="color:${rc}">${rate}%</span>
+            <div class="rate-bar-wrap"><div class="rate-bar" style="width:${rate}%;background:${rc}"></div></div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ─── SORT ────────────────────────────────────────────────────────
+  const colMap = { n:'n', Avg_Score:'avg', Scholarships_Awarded:'sch', Selection_Rate:'rate' };
+  function sortBy(col, btn) {
+    const field = colMap[col] || col;
+    if (sortCol === field) sortDir *= -1; else { sortCol = field; sortDir = -1; }
+    currentData.sort((a, b) => {
+      const vA = a[field], vB = b[field];
+      return (vA < vB ? -1 : vA > vB ? 1 : 0) * sortDir;
+    });
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderTable();
+  }
+
+  // ─── FILTER ──────────────────────────────────────────────────────
+  function filterTable() {
+    const q = document.getElementById('search-box').value.toLowerCase();
+    renderTable(currentData.filter(r => r.c.toLowerCase().includes(q)));
+  }
+
+  // ─── TABS ────────────────────────────────────────────────────────
+  function switchTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    switch (tab) {
+      case 'awarded':  currentData = DATA.filter(d => d.sch > 0); break;
+      case 'top':      currentData = DATA.filter(d => d.avg >= 85); break;
+      case 'selected': currentData = DATA.filter(d => d.im > 0); break;
+      default:         currentData = [...DATA];
+    }
+    renderTable();
+  }
+
+  // ─── INIT ────────────────────────────────────────────────────────
+  function init() {
+    counter('kpi-total',       319,  0, 0);
+    counter('kpi-countries',    64,  0, 180);
+    counter('kpi-scholarships', 20,  0, 360);
+    counter('kpi-avg',        71.8,  1, 540);
+    initCharts();
+    renderTop();
+    renderTable();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  </script>
+</body>
+</html>
