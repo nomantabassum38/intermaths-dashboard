@@ -1,948 +1,438 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InterMaths 2026 — Global Selection Dashboard</title>
-  <meta name="description" content="EMJMD InterMaths 2026 Network — Interactive global selection analytics dashboard. 319 applicants, 64 countries, 20 scholarships.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-</head>
-  <style>
-    :root {
-      --bg: #07090f;
-      --bg2: #0d111c;
-      --surface: #131825;
-      --surface2: #1a2035;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.14);
-      --accent: #3b82f6;
-      --accent2: #8b5cf6;
-      --accent3: #f59e0b;
-      --green: #10b981;
-      --red: #ef4444;
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --text3: #475569;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterMaths 2026 — Global Selection Dashboard</title>
+<meta name="description" content="EMJMD InterMaths 2026 — Interactive analytics of 319 applicants from 64 countries. Charts, rankings, and scholarship data.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06080f;--bg2:#0c1018;--surface:#111827;--surface2:#1a2236;--surface3:#222d44;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --accent:#3b82f6;--accent-l:#60a5fa;--purple:#8b5cf6;--purple-l:#a78bfa;
+  --green:#10b981;--green-l:#34d399;--amber:#f59e0b;--amber-l:#fbbf24;--red:#ef4444;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#4b5563;
+  --radius:14px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Ambient background */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
+.ambient::before{content:'';position:absolute;width:800px;height:800px;background:radial-gradient(circle,rgba(59,130,246,0.07),transparent 70%);top:-200px;right:-200px;animation:drift 12s ease-in-out infinite}
+.ambient::after{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.05),transparent 70%);bottom:-100px;left:-100px;animation:drift 15s ease-in-out infinite reverse}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-20px)}}
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+/* Grid lines */
+.grid-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);
+  background-size:80px 80px}
 
-    /* Animated grid background */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:20px 24px 60px}
 
-    /* Glowing orbs */
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-      animation: float 8s ease-in-out infinite;
-    }
-    .orb-1 { width: 500px; height: 500px; background: rgba(59,130,246,0.1); top: -100px; right: -100px; }
-    .orb-2 { width: 400px; height: 400px; background: rgba(139,92,246,0.08); bottom: -50px; left: -80px; animation-delay: 3s; }
-    .orb-3 { width: 300px; height: 300px; background: rgba(16,185,129,0.06); top: 40%; left: 30%; animation-delay: 5s; }
+/* ===== HEADER ===== */
+header{padding:48px 0 40px;border-bottom:1px solid var(--border);margin-bottom:36px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px}
+.h-left{}
+.h-tag{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.h-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
+h1{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.05;
+  background:linear-gradient(135deg,#fff 20%,var(--accent-l) 55%,var(--purple-l) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.h-sub{margin-top:12px;font-size:.92rem;color:var(--text2);max-width:580px;line-height:1.5}
+.h-right{display:flex;gap:10px;align-items:center}
+.live{display:flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.06em}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-20px) scale(1.05); }
-    }
+/* ===== KPI CARDS ===== */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s;cursor:default}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.c1::after{background:linear-gradient(90deg,var(--accent),var(--accent-l))}
+.kpi.c2::after{background:linear-gradient(90deg,var(--purple),var(--purple-l))}
+.kpi.c3::after{background:linear-gradient(90deg,var(--amber),var(--amber-l))}
+.kpi.c4::after{background:linear-gradient(90deg,var(--green),var(--green-l))}
+.kpi:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.35);border-color:var(--border2)}
+.kpi-icon{font-size:1.5rem;margin-bottom:10px;filter:grayscale(.2)}
+.kpi-val{font-size:2.6rem;font-weight:800;line-height:1}
+.kpi.c1 .kpi-val{color:var(--accent)}.kpi.c2 .kpi-val{color:var(--purple-l)}.kpi.c3 .kpi-val{color:var(--amber)}.kpi.c4 .kpi-val{color:var(--green)}
+.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-top:8px}
 
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1360px;
-      margin: 0 auto;
-      padding: 0 24px 60px;
-    }
+/* ===== PAKISTAN BANNER ===== */
+.pak{background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(139,92,246,0.04));border:1px solid rgba(59,130,246,0.18);border-radius:var(--radius);padding:20px 28px;margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;transition:border-color .3s}
+.pak:hover{border-color:rgba(59,130,246,0.35)}
+.pak-flag{font-size:2.4rem}
+.pak-info{flex:1;min-width:200px}
+.pak-info h3{font-weight:700;font-size:.95rem;margin-bottom:3px}
+.pak-info p{font-size:.82rem;color:var(--text2);line-height:1.4}
+.pak-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.04em;border:1px solid}
+.chip-b{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.2);color:var(--accent-l)}
+.chip-a{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:var(--amber-l)}
+.chip-g{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:var(--green-l)}
 
-    /* HEADER */
-    header {
-      padding: 40px 0 32px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 48px;
-    }
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:border-color .3s}
+.card:hover{border-color:var(--border2)}
+.card-t{font-size:.9rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-t span{font-size:.72rem;color:var(--text3);font-weight:400}
+.chart-h{position:relative;height:300px}
+.chart-sm{position:relative;height:250px}
 
-    .header-left {}
+/* Layout grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g1-2{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:28px}
 
-    .header-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .header-tag::before {
-      content: '';
-      width: 20px; height: 1px;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
+/* ===== TOP PERFORMERS ===== */
+.top-list{display:flex;flex-direction:column;gap:10px}
+.top-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1px solid var(--border);border-radius:10px;transition:transform .25s,border-color .25s,background .25s;cursor:default}
+.top-item:hover{transform:translateX(6px);border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.03)}
+.top-medal{font-size:1.5rem;flex-shrink:0}
+.top-info{flex:1}
+.top-id{font-weight:700;font-size:.9rem}
+.top-ctry{font-size:.75rem;color:var(--text3);margin-top:2px}
+.top-sc{text-align:right}
+.top-sv{font-size:1.4rem;font-weight:800;color:var(--green);line-height:1}
+.top-sl{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
 
-    h1 {
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      background: linear-gradient(135deg, #fff 0%, rgba(59,130,246,0.9) 60%, rgba(139,92,246,0.8) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+/* ===== TABLE ===== */
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.tbl-ctrl{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);padding-bottom:14px}
+.t-btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s}
+.t-btn:hover{border-color:var(--border2);color:var(--text)}
+.t-btn.on{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--accent-l)}
+.t-search{margin-left:auto;padding:7px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.82rem;outline:none;width:200px;transition:border-color .2s;font-family:'Inter',sans-serif}
+.t-search:focus{border-color:var(--accent)}
+.t-search::placeholder{color:var(--text3)}
+.srt-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.srt-lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.s-btn{padding:3px 10px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:.66rem;cursor:pointer;transition:all .2s}
+.s-btn:hover{color:var(--text2);border-color:var(--border2)}
+.s-btn.on{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25);color:var(--accent)}
+.cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3)}
+.tscroll{max-height:480px;overflow-y:auto;border-radius:8px}
+.tscroll::-webkit-scrollbar{width:5px}
+.tscroll::-webkit-scrollbar-track{background:var(--bg)}
+.tscroll::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+.tscroll::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{position:sticky;top:0;z-index:2;padding:10px 12px;text-align:left;background:var(--surface);color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;transition:color .2s;user-select:none}
+thead th:hover{color:var(--accent-l)}
+thead th.r{text-align:right}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tdr{text-align:right}
+.tdc{font-weight:600;white-space:nowrap}
+.tdm{color:var(--text2)}
+.td-im{color:var(--accent);font-weight:700;text-align:right}
+.td-mm{color:var(--purple-l);text-align:right}
+.you{display:inline-block;font-size:.58rem;background:rgba(59,130,246,.12);color:var(--accent-l);padding:1px 7px;border-radius:4px;margin-left:6px;font-family:'JetBrains Mono',monospace;vertical-align:middle;animation:youPulse 2s infinite}
+@keyframes youPulse{0%,100%{opacity:1}50%{opacity:.6}}
+.sch{display:inline-flex;align-items:center;background:rgba(16,185,129,.12);color:var(--green);padding:2px 9px;border-radius:4px;font-weight:700}
+.rate{display:flex;align-items:center;gap:8px;min-width:120px}
+.rate-n{font-size:.78rem;font-weight:600;min-width:38px}
+.rate-bar{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.rate-fill{height:100%;border-radius:2px;transition:width .7s ease}
+.pak-row{background:rgba(59,130,246,.03)!important;border-left:2px solid var(--accent)}
+.pak-row:hover{background:rgba(59,130,246,.08)!important}
 
-    .header-sub {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      color: var(--text2);
-      max-width: 560px;
-    }
+/* ===== FOOTER ===== */
+footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3)}
+footer a{color:var(--accent);text-decoration:none}footer a:hover{text-decoration:underline}
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .live-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: rgba(16,185,129,0.08);
-      border: 1px solid rgba(16,185,129,0.2);
-      border-radius: 8px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--green);
-      letter-spacing: 0.06em;
-    }
-    .live-dot {
-      width: 7px; height: 7px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse-green 2s infinite;
-    }
-    @keyframes pulse-green {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-      50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
-    }
-
-    /* KPI CARDS */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-      cursor: default;
-    }
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
-    .kpi-card.blue::before { background: linear-gradient(90deg, var(--accent), #60a5fa); }
-    .kpi-card.purple::before { background: linear-gradient(90deg, var(--accent2), #a78bfa); }
-    .kpi-card.amber::before { background: linear-gradient(90deg, var(--accent3), #fbbf24); }
-    .kpi-card.green::before { background: linear-gradient(90deg, var(--green), #34d399); }
-
-    .kpi-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-      border-color: var(--border2);
-    }
-
-    .kpi-icon {
-      font-size: 1.6rem;
-      margin-bottom: 12px;
-      opacity: 0.8;
-    }
-    .kpi-value {
-      font-size: 2.8rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .kpi-card.blue .kpi-value { color: var(--accent); }
-    .kpi-card.purple .kpi-value { color: #a78bfa; }
-    .kpi-card.amber .kpi-value { color: var(--accent3); }
-    .kpi-card.green .kpi-value { color: var(--green); }
-
-    .kpi-label {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--text3);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    /* PAKISTAN BANNER */
-    .pak-banner {
-      background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(139,92,246,0.06) 100%);
-      border: 1px solid rgba(59,130,246,0.2);
-      border-radius: 16px;
-      padding: 20px 28px;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      transition: border-color 0.3s;
-    }
-    .pak-banner:hover { border-color: rgba(59,130,246,0.35); }
-
-    .pak-flag { font-size: 2.2rem; }
-
-    .pak-info { flex: 1; }
-    .pak-info h3 {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .pak-info p {
-      font-size: 0.82rem;
-      color: var(--text2);
-    }
-
-    .pak-chips {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .chip {
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.04em;
-      border: 1px solid;
-    }
-    .chip-blue { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.25); color: #60a5fa; }
-    .chip-amber { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #fbbf24; }
-    .chip-green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #34d399; }
-
-    /* CHARTS */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .charts-row-2 {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      transition: border-color 0.3s;
-    }
-    .card:hover { border-color: var(--border2); }
-
-    .card-title {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .chart-wrap {
-      position: relative;
-      height: 300px;
-    }
-    .chart-wrap-sm {
-      position: relative;
-      height: 240px;
-    }
-
-    /* TOP PERFORMERS */
-    .top-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .top-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      transition: transform 0.2s, border-color 0.2s, background 0.2s;
-      cursor: default;
-    }
-    .top-item:hover {
-      transform: translateX(4px);
-      border-color: rgba(16,185,129,0.3);
-      background: rgba(16,185,129,0.04);
-    }
-    .top-medal { font-size: 1.4rem; flex-shrink: 0; }
-    .top-info { flex: 1; }
-    .top-id { font-weight: 700; font-size: 0.88rem; color: var(--text); }
-    .top-country { font-size: 0.75rem; color: var(--text3); margin-top: 2px; }
-    .top-score { text-align: right; }
-    .top-score-val { font-size: 1.3rem; font-weight: 800; color: var(--green); line-height: 1; }
-    .top-score-lbl { font-size: 0.6rem; color: var(--text3); font-family: 'Roboto Mono', monospace; text-transform: uppercase; }
-
-    /* TABLE */
-    .table-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 0;
-    }
-
-    .table-controls {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-    }
-
-    .tab-btn {
-      padding: 7px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text2);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn:hover { border-color: var(--border2); color: var(--text); }
-    .tab-btn.active {
-      background: rgba(59,130,246,0.12);
-      border-color: rgba(59,130,246,0.35);
-      color: #60a5fa;
-    }
-
-    .search-input {
-      margin-left: auto;
-      padding: 7px 14px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.82rem;
-      outline: none;
-      width: 180px;
-      transition: border-color 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--text3); }
-
-    .sort-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .sort-lbl {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--text3);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .sort-btn {
-      padding: 3px 10px;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      background: transparent;
-      color: var(--text3);
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.68rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .sort-btn:hover { color: var(--text2); border-color: var(--border2); }
-    .sort-btn.active {
-      background: rgba(59,130,246,0.1);
-      border-color: rgba(59,130,246,0.3);
-      color: var(--accent);
-    }
-    .row-count {
-      margin-left: auto;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.62rem;
-      color: var(--text3);
-    }
-
-    .table-scroll {
-      max-height: 440px;
-      overflow-y: auto;
-      border-radius: 8px;
-    }
-    .table-scroll::-webkit-scrollbar { width: 6px; }
-    .table-scroll::-webkit-scrollbar-track { background: var(--bg); border-radius: 3px; }
-    .table-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-    .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      padding: 10px 12px;
-      text-align: left;
-      background: var(--surface);
-      color: var(--text3);
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    thead th.r { text-align: right; }
-    tbody tr { transition: background 0.15s; }
-    tbody tr:hover { background: var(--surface2); }
-    tbody td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-    .td-r { text-align: right; }
-    .td-country { font-weight: 600; color: var(--text); white-space: nowrap; }
-    .td-num { color: var(--text2); }
-    .td-im { color: var(--accent); font-weight: 600; text-align: right; }
-    .td-mm { color: #a78bfa; text-align: right; }
-
-    .you-badge {
-      display: inline-block;
-      font-size: 0.6rem;
-      background: rgba(59,130,246,0.15);
-      color: #60a5fa;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-      font-family: 'Roboto Mono', monospace;
-      vertical-align: middle;
-    }
-
-    .scholar-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(16,185,129,0.15);
-      color: var(--green);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 700;
-    }
-
-    .rate-cell {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 110px;
-    }
-    .rate-num { font-size: 0.78rem; font-weight: 600; min-width: 34px; }
-    .rate-bar-wrap { flex: 1; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
-    .rate-bar { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
-
-    /* PAK ROW highlight */
-    .pak-row { background: rgba(59,130,246,0.04) !important; border-left: 2px solid var(--accent); }
-    .pak-row:hover { background: rgba(59,130,246,0.1) !important; }
-
-    /* FOOTER */
-    footer {
-      margin-top: 40px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .footer-left {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--text3);
-    }
-    .footer-left a { color: var(--accent); text-decoration: none; }
-    .footer-left a:hover { text-decoration: underline; }
-    .footer-right {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--text3);
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .charts-row { grid-template-columns: 1fr; }
-      .charts-row-2 { grid-template-columns: 1fr; }
-      h1 { font-size: 1.6rem; }
-    }
-    @media (max-width: 600px) {
-      .kpi-grid { grid-template-columns: 1fr 1fr; }
-      .pak-banner { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
+/* Responsive */
+@media(max-width:1000px){.kpi-row{grid-template-columns:repeat(2,1fr)}.g2,.g1-2{grid-template-columns:1fr}h1{font-size:1.8rem}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.pak{flex-direction:column;align-items:flex-start}.tbl-ctrl{flex-direction:column;align-items:stretch}.t-search{margin-left:0;width:100%}}
+</style>
 </head>
 <body>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+<div class="wrap">
 
-  <div class="page-wrap">
-
-    <!-- HEADER -->
-    <header>
-      <div class="header-left">
-        <div class="header-tag">EMJMD Network · 2026 Intake</div>
-        <h1>InterMaths Global Selection</h1>
-        <p class="header-sub">Final selection results from the Evaluation Committee · 319 applicants from 64 countries · 20 EMJM Scholarships awarded</p>
-      </div>
-      <div class="header-right">
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          INTERACTIVE
-        </div>
-      </div>
-    </header>
-
-    <!-- KPI CARDS -->
-    <div class="kpi-grid">
-      <div class="kpi-card blue">
-        <div class="kpi-icon">🌍</div>
-        <div class="kpi-value" id="kpi-total">0</div>
-        <div class="kpi-label">Total Applicants</div>
-      </div>
-      <div class="kpi-card purple">
-        <div class="kpi-icon">🗺️</div>
-        <div class="kpi-value" id="kpi-countries">0</div>
-        <div class="kpi-label">Countries Represented</div>
-      </div>
-      <div class="kpi-card amber">
-        <div class="kpi-icon">🏆</div>
-        <div class="kpi-value" id="kpi-scholarships">0</div>
-        <div class="kpi-label">Scholarships Awarded</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-icon">📊</div>
-        <div class="kpi-value" id="kpi-avg">0</div>
-        <div class="kpi-label">Average Score</div>
-      </div>
-    </div>
-
-    <!-- PAK BANNER -->
-    <div class="pak-banner">
-      <div class="pak-flag">🇵🇰</div>
-      <div class="pak-info">
-        <h3>Pakistan — Largest Applicant Pool in 2026 Selection</h3>
-        <p>35 applicants · Avg score 71.03 · Max score 88.57 · Best rank #34 · 10 IM selected · 60% selection rate</p>
-      </div>
-      <div class="pak-chips">
-        <span class="chip chip-blue">35 Applicants</span>
-        <span class="chip chip-amber">#1 Country Volume</span>
-        <span class="chip chip-green">60% Sel. Rate</span>
-      </div>
-    </div>
-
-    <!-- CHARTS ROW 1 -->
-    <div class="charts-row">
-      <div class="card">
-        <div class="card-title">📊 Applicants by Country <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">(Top 15)</span></div>
-        <div class="chart-wrap"><canvas id="chart-country"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📈 Avg Score by Country <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">(Top 15 by score)</span></div>
-        <div class="chart-wrap"><canvas id="chart-score"></canvas></div>
-      </div>
-    </div>
-
-    <!-- CHARTS ROW 2 -->
-    <div class="charts-row-2">
-      <div class="card">
-        <div class="card-title">🎯 Program Distribution</div>
-        <div class="chart-wrap-sm"><canvas id="chart-program"></canvas></div>
-        <div id="program-totals" style="margin-top:12px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🥇 Top 5 Performers</div>
-        <div class="top-list" id="top-list"></div>
-      </div>
-    </div>
-
-    <!-- DATA TABLE -->
-    <div class="table-card">
-      <div class="table-controls">
-        <button class="tab-btn active" onclick="switchTab(this,'all')">All Countries</button>
-        <button class="tab-btn" onclick="switchTab(this,'awarded')">🏆 Scholarship Winners</button>
-        <button class="tab-btn" onclick="switchTab(this,'top')">⭐ Top Scorers (≥85)</button>
-        <button class="tab-btn" onclick="switchTab(this,'selected')">✅ IM Selected</button>
-        <input class="search-input" id="search-box" type="text" placeholder="🔍 Search country…" oninput="filterTable()">
-      </div>
-      <div class="sort-row">
-        <span class="sort-lbl">Sort:</span>
-        <button class="sort-btn active" id="sort-apps" onclick="sortBy('Total_Applicants', this)">Applicants</button>
-        <button class="sort-btn" id="sort-avg" onclick="sortBy('Avg_Score', this)">Avg Score</button>
-        <button class="sort-btn" id="sort-sch" onclick="sortBy('Scholarships_Awarded', this)">Scholarships</button>
-        <button class="sort-btn" id="sort-rate" onclick="sortBy('Selection_Rate', this)">Sel. Rate</button>
-        <span class="row-count" id="row-count"></span>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Country</th>
-              <th class="r">Apps</th>
-              <th class="r">Avg</th>
-              <th class="r">Max</th>
-              <th class="r">IM</th>
-              <th class="r">MM</th>
-              <th class="r">RM</th>
-              <th class="r">🏆</th>
-              <th>Sel. Rate</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer>
-      <div class="footer-left">
-        EMJMD InterMaths Network · 2026 Intake · Data source: Official selection list ·
-        Portfolio: <a href="https://nomantabassum38.github.io" target="_blank">nomantabassum38.github.io</a>
-      </div>
-      <div class="footer-right">Built by M. Noman Tabassum · 2026</div>
-    </footer>
-
+<!-- HEADER -->
+<header>
+  <div class="h-left">
+    <div class="h-tag">EMJMD Network · 2026 Intake</div>
+    <h1>InterMaths Global<br>Selection Dashboard</h1>
+    <p class="h-sub">Final selection results — 319 applicants from 64 countries evaluated by the Evaluation Committee. 20 EMJM Scholarships awarded across 3 programmes.</p>
   </div>
+  <div class="h-right">
+    <div class="live"><div class="live-dot"></div>INTERACTIVE ANALYTICS</div>
+  </div>
+</header>
 
-  <script>
-  const DATA = [
-    {c:"PAKISTAN",        flag:"🇵🇰", n:35, avg:71.03, max:88.57, min:56.80, im:10, mm:18, rm:35, sch:0, rank:34,  rate:60.0},
-    {c:"NIGERIA",         flag:"🇳🇬", n:30, avg:67.89, max:85.95, min:54.10, im:11, mm:17, rm:30, sch:0, rank:64,  rate:64.4},
-    {c:"Cameroon",        flag:"🇨🇲", n:29, avg:64.20, max:87.13, min:50.40, im:8,  mm:15, rm:29, sch:1, rank:50,  rate:59.8},
-    {c:"UGANDA",          flag:"🇺🇬", n:16, avg:67.74, max:84.09, min:53.75, im:4,  mm:9,  rm:16, sch:0, rank:89,  rate:60.4},
-    {c:"INDIA",           flag:"🇮🇳", n:13, avg:71.76, max:90.44, min:53.35, im:5,  mm:8,  rm:13, sch:1, rank:17,  rate:66.7},
-    {c:"Rwanda",          flag:"🇷🇼", n:10, avg:63.23, max:81.44, min:51.30, im:2,  mm:6,  rm:10, sch:0, rank:111, rate:60.0},
-    {c:"IRAN",            flag:"🇮🇷", n:10, avg:68.48, max:87.40, min:53.85, im:4,  mm:5,  rm:10, sch:0, rank:45,  rate:63.3},
-    {c:"Kazakhstan",      flag:"🇰🇿", n:9,  avg:72.40, max:91.25, min:52.55, im:3,  mm:6,  rm:9,  sch:2, rank:14,  rate:66.7},
-    {c:"Spain",           flag:"🇪🇸", n:9,  avg:86.14, max:96.69, min:63.70, im:7,  mm:8,  rm:9,  sch:2, rank:4,   rate:88.9},
-    {c:"BANGLADESH",      flag:"🇧🇩", n:8,  avg:76.93, max:85.75, min:60.00, im:4,  mm:7,  rm:8,  sch:0, rank:68,  rate:79.2},
-    {c:"VIETNAM",         flag:"🇻🇳", n:8,  avg:78.84, max:95.83, min:64.15, im:3,  mm:7,  rm:8,  sch:2, rank:6,   rate:75.0},
-    {c:"United States",   flag:"🇺🇸", n:7,  avg:85.22, max:94.59, min:64.40, im:6,  mm:6,  rm:7,  sch:1, rank:8,   rate:90.5},
-    {c:"Sri Lanka",       flag:"🇱🇰", n:7,  avg:60.13, max:82.05, min:50.80, im:2,  mm:2,  rm:7,  sch:0, rank:106, rate:52.4},
-    {c:"Egypt",           flag:"🇪🇬", n:7,  avg:65.66, max:84.30, min:54.90, im:2,  mm:3,  rm:7,  sch:0, rank:87,  rate:57.1},
-    {c:"China",           flag:"🇨🇳", n:7,  avg:81.68, max:89.93, min:64.50, im:5,  mm:6,  rm:7,  sch:0, rank:22,  rate:85.7},
-    {c:"Italy",           flag:"🇮🇹", n:6,  avg:91.68, max:99.55, min:84.40, im:6,  mm:6,  rm:6,  sch:2, rank:1,   rate:100.0},
-    {c:"GERMANY",         flag:"🇩🇪", n:6,  avg:87.48, max:93.81, min:87.83, im:5,  mm:6,  rm:6,  sch:2, rank:11,  rate:88.9},
-    {c:"COLOMBIA",        flag:"🇨🇴", n:6,  avg:83.46, max:88.79, min:80.90, im:5,  mm:6,  rm:6,  sch:1, rank:31,  rate:94.4},
-    {c:"Mexico",          flag:"🇲🇽", n:6,  avg:81.35, max:87.35, min:72.50, im:3,  mm:5,  rm:6,  sch:0, rank:46,  rate:77.8},
-    {c:"ECUADOR",         flag:"🇪🇨", n:6,  avg:77.20, max:85.38, min:70.50, im:3,  mm:5,  rm:6,  sch:0, rank:74,  rate:77.8},
-    {c:"Russia",          flag:"🇷🇺", n:5,  avg:87.26, max:94.32, min:89.46, im:4,  mm:5,  rm:5,  sch:1, rank:9,   rate:93.3},
-    {c:"Ukraine",         flag:"🇺🇦", n:5,  avg:85.37, max:88.69, min:85.70, im:3,  mm:4,  rm:5,  sch:0, rank:32,  rate:80.0},
-    {c:"Turkey",          flag:"🇹🇷", n:5,  avg:76.15, max:86.15, min:71.25, im:2,  mm:3,  rm:5,  sch:0, rank:60,  rate:66.7},
-    {c:"Ethiopia",        flag:"🇪🇹", n:5,  avg:71.21, max:86.05, min:56.50, im:2,  mm:3,  rm:5,  sch:0, rank:62,  rate:66.7},
-    {c:"United Kingdom",  flag:"🇬🇧", n:4,  avg:88.20, max:90.30, min:86.20, im:3,  mm:4,  rm:4,  sch:0, rank:19,  rate:91.7},
-    {c:"AUSTRALIA",       flag:"🇦🇺", n:4,  avg:87.50, max:96.00, min:84.99, im:3,  mm:4,  rm:4,  sch:1, rank:5,   rate:91.7},
-    {c:"Korea (South)",   flag:"🇰🇷", n:4,  avg:89.41, max:95.62, min:83.81, im:4,  mm:4,  rm:4,  sch:1, rank:7,   rate:100.0},
-    {c:"Ireland",         flag:"🇮🇪", n:4,  avg:80.37, max:90.14, min:71.00, im:3,  mm:3,  rm:4,  sch:0, rank:21,  rate:83.3},
-    {c:"ALGERIA",         flag:"🇩🇿", n:4,  avg:73.21, max:80.83, min:66.00, im:2,  mm:3,  rm:4,  sch:0, rank:116, rate:75.0},
-    {c:"Brazil",          flag:"🇧🇷", n:4,  avg:71.58, max:81.95, min:59.60, im:2,  mm:3,  rm:4,  sch:0, rank:108, rate:75.0},
-    {c:"South Africa",    flag:"🇿🇦", n:4,  avg:85.43, max:89.76, min:86.10, im:3,  mm:4,  rm:4,  sch:1, rank:24,  rate:91.7},
-    {c:"Lebanon",         flag:"🇱🇧", n:4,  avg:72.58, max:86.90, min:54.40, im:2,  mm:2,  rm:4,  sch:0, rank:54,  rate:66.7},
-    {c:"Kosovo",          flag:"🇽🇰", n:4,  avg:80.70, max:80.70, min:80.70, im:1,  mm:1,  rm:1,  sch:1, rank:118, rate:100.0},
-    {c:"Croatia",         flag:"🇭🇷", n:3,  avg:90.25, max:98.74, min:82.37, im:3,  mm:3,  rm:3,  sch:1, rank:3,   rate:100.0},
-    {c:"Cambodia",        flag:"🇰🇭", n:3,  avg:70.60, max:70.60, min:70.60, im:0,  mm:1,  rm:1,  sch:0, rank:165, rate:66.7},
-    {c:"Belgium",         flag:"🇧🇪", n:3,  avg:83.03, max:87.05, min:79.00, im:2,  mm:3,  rm:3,  sch:0, rank:51,  rate:88.9},
-    {c:"ARGENTINA",       flag:"🇦🇷", n:3,  avg:76.12, max:88.50, min:52.85, im:2,  mm:2,  rm:3,  sch:0, rank:35,  rate:77.8},
-    {c:"France",          flag:"🇫🇷", n:3,  avg:76.83, max:84.50, min:73.00, im:2,  mm:2,  rm:3,  sch:0, rank:84,  rate:77.8},
-    {c:"TUNISIA",         flag:"🇹🇳", n:3,  avg:82.37, max:82.37, min:82.37, im:1,  mm:1,  rm:1,  sch:0, rank:100, rate:100.0},
-    {c:"GHANA",           flag:"🇬🇭", n:3,  avg:70.87, max:82.10, min:52.05, im:1,  mm:2,  rm:3,  sch:0, rank:105, rate:66.7},
-    {c:"Latvia",          flag:"🇱🇻", n:3,  avg:86.84, max:86.84, min:86.84, im:1,  mm:1,  rm:1,  sch:0, rank:55,  rate:100.0},
-    {c:"Poland",          flag:"🇵🇱", n:3,  avg:65.60, max:65.60, min:65.60, im:0,  mm:0,  rm:1,  sch:0, rank:202, rate:33.3},
-    {c:"Kenya",           flag:"🇰🇪", n:3,  avg:60.58, max:69.40, min:53.50, im:0,  mm:1,  rm:3,  sch:0, rank:174, rate:44.4},
-    {c:"ZIMBABWE",        flag:"🇿🇼", n:3,  avg:64.80, max:64.80, min:64.80, im:0,  mm:0,  rm:1,  sch:0, rank:206, rate:33.3},
-    {c:"Congo",           flag:"🇨🇬", n:3,  avg:65.20, max:65.20, min:65.20, im:0,  mm:0,  rm:1,  sch:0, rank:204, rate:33.3},
-    {c:"THAILAND",        flag:"🇹🇭", n:3,  avg:65.80, max:65.80, min:65.80, im:0,  mm:0,  rm:1,  sch:0, rank:201, rate:33.3},
-    {c:"Serbia",          flag:"🇷🇸", n:3,  avg:61.50, max:62.50, min:59.90, im:0,  mm:0,  rm:3,  sch:0, rank:221, rate:100.0},
-    {c:"Malaysia",        flag:"🇲🇾", n:3,  avg:61.30, max:65.40, min:57.10, im:0,  mm:0,  rm:3,  sch:0, rank:203, rate:100.0},
-    {c:"Kyrgyzstan",      flag:"🇰🇬", n:3,  avg:63.35, max:67.80, min:51.75, im:0,  mm:1,  rm:3,  sch:0, rank:187, rate:44.4},
-    {c:"INDONESIA",       flag:"🇮🇩", n:3,  avg:66.38, max:74.90, min:61.75, im:0,  mm:1,  rm:3,  sch:0, rank:131, rate:44.4},
-    {c:"Chile",           flag:"🇨🇱", n:3,  avg:72.40, max:72.40, min:72.40, im:0,  mm:1,  rm:1,  sch:0, rank:152, rate:66.7},
-    {c:"Palestine",       flag:"🇵🇸", n:3,  avg:76.01, max:83.27, min:68.75, im:1,  mm:1,  rm:3,  sch:0, rank:96,  rate:55.6},
-    {c:"Lithuania",       flag:"🇱🇹", n:3,  avg:72.60, max:72.60, min:72.60, im:0,  mm:1,  rm:1,  sch:0, rank:150, rate:66.7},
-    {c:"Sweden",          flag:"🇸🇪", n:3,  avg:74.10, max:74.10, min:74.10, im:0,  mm:1,  rm:1,  sch:0, rank:138, rate:66.7},
-    {c:"NEPAL",           flag:"🇳🇵", n:3,  avg:74.00, max:74.00, min:74.00, im:0,  mm:1,  rm:1,  sch:0, rank:139, rate:66.7},
-    {c:"MACEDONIA",       flag:"🇲🇰", n:3,  avg:73.10, max:73.10, min:73.10, im:0,  mm:1,  rm:1,  sch:0, rank:146, rate:66.7},
-    {c:"The Gambia",      flag:"🇬🇲", n:3,  avg:50.30, max:50.30, min:50.30, im:0,  mm:0,  rm:1,  sch:0, rank:315, rate:33.3},
-    {c:"MADAGASCAR",      flag:"🇲🇬", n:3,  avg:50.12, max:50.25, min:50.00, im:0,  mm:0,  rm:2,  sch:0, rank:316, rate:22.2},
-    {c:"UZBEKISTAN",      flag:"🇺🇿", n:3,  avg:50.43, max:51.00, min:50.10, im:0,  mm:0,  rm:3,  sch:0, rank:308, rate:100.0},
-    {c:"Morocco",         flag:"🇲🇦", n:3,  avg:51.25, max:51.25, min:51.25, im:0,  mm:0,  rm:1,  sch:0, rank:306, rate:33.3},
-    {c:"Greece",          flag:"🇬🇷", n:3,  avg:59.25, max:59.25, min:59.25, im:0,  mm:0,  rm:1,  sch:0, rank:242, rate:33.3},
-    {c:"HONDURAS",        flag:"🇭🇳", n:3,  avg:58.25, max:58.25, min:58.25, im:0,  mm:0,  rm:1,  sch:0, rank:249, rate:33.3},
-    {c:"TANZANIA",        flag:"🇹🇿", n:3,  avg:60.40, max:60.40, min:60.40, im:0,  mm:0,  rm:1,  sch:0, rank:234, rate:33.3},
-  ];
+<!-- KPI -->
+<div class="kpi-row">
+  <div class="kpi c1"><div class="kpi-icon">🌍</div><div class="kpi-val" id="k1">0</div><div class="kpi-lbl">Total Applicants</div></div>
+  <div class="kpi c2"><div class="kpi-icon">🗺️</div><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Countries</div></div>
+  <div class="kpi c3"><div class="kpi-icon">🏆</div><div class="kpi-val" id="k3">0</div><div class="kpi-lbl">Scholarships</div></div>
+  <div class="kpi c4"><div class="kpi-icon">📊</div><div class="kpi-val" id="k4">0</div><div class="kpi-lbl">Avg Score</div></div>
+</div>
 
-  const TOP5 = [
-    {rank:1, id:"2503059", country:"Italy",     flag:"🇮🇹", score:99.55, scholarship:true},
-    {rank:2, id:"2522846", country:"Italy",     flag:"🇮🇹", score:99.16, scholarship:true},
-    {rank:3, id:"2457953", country:"Croatia",   flag:"🇭🇷", score:98.74, scholarship:true},
-    {rank:4, id:"2514655", country:"Spain",     flag:"🇪🇸", score:96.69, scholarship:true},
-    {rank:5, id:"2521687", country:"Australia", flag:"🇦🇺", score:96.00, scholarship:true},
-  ];
+<!-- PAKISTAN -->
+<div class="pak">
+  <div class="pak-flag">🇵🇰</div>
+  <div class="pak-info">
+    <h3>Pakistan — Largest Applicant Pool in 2026</h3>
+    <p>35 applicants · Avg score 71.03 · Max score 88.57 · Best rank #34 · 10 IM selected · 60% selection rate</p>
+  </div>
+  <div class="pak-chips">
+    <span class="chip chip-b">35 Applicants</span>
+    <span class="chip chip-a">#1 Volume</span>
+    <span class="chip chip-g">60% Sel. Rate</span>
+  </div>
+</div>
 
-  let currentData = [...DATA];
-  let sortCol = 'n';
-  let sortDir = -1;
+<!-- CHARTS ROW 1 -->
+<div class="g2">
+  <div class="card">
+    <div class="card-t">📊 Applicants by Country <span>(Top 15)</span></div>
+    <div class="chart-h"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-t">📈 Avg Score by Country <span>(Top 15 by score)</span></div>
+    <div class="chart-h"><canvas id="c2"></canvas></div>
+  </div>
+</div>
 
-  // ─── ANIMATED COUNTER ───────────────────────────────────────────
-  function counter(id, target, dec, delay) {
-    setTimeout(() => {
-      let start, dur = 1400;
-      const el = document.getElementById(id);
-      const step = ts => {
-        if (!start) start = ts;
-        const p = Math.min((ts - start) / dur, 1);
-        el.textContent = (p * target).toFixed(dec);
-        if (p < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay);
+<!-- CHARTS ROW 2 -->
+<div class="g1-2">
+  <div class="card">
+    <div class="card-t">🎯 Programme Split</div>
+    <div class="chart-sm"><canvas id="c3"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-t">🥇 Top 5 Performers</div>
+    <div class="top-list" id="topL"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="tbl-card">
+  <div class="tbl-ctrl">
+    <button class="t-btn on" onclick="tabClick(this,'all')">All Countries</button>
+    <button class="t-btn" onclick="tabClick(this,'sch')">🏆 Scholarship Winners</button>
+    <button class="t-btn" onclick="tabClick(this,'top')">⭐ Top Scorers (≥85)</button>
+    <button class="t-btn" onclick="tabClick(this,'sel')">✅ IM Selected</button>
+    <input class="t-search" id="q" type="text" placeholder="🔍 Search country…" oninput="doFilter()">
+  </div>
+  <div class="srt-row">
+    <span class="srt-lbl">Sort:</span>
+    <button class="s-btn on" onclick="doSort('n',this)">Applicants</button>
+    <button class="s-btn" onclick="doSort('avg',this)">Avg Score</button>
+    <button class="s-btn" onclick="doSort('max',this)">Max Score</button>
+    <button class="s-btn" onclick="doSort('sch',this)">Scholarships</button>
+    <button class="s-btn" onclick="doSort('rate',this)">Sel. Rate</button>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <div class="tscroll">
+    <table>
+      <thead><tr>
+        <th onclick="doSort('c')">Country ↕</th>
+        <th class="r" onclick="doSort('n')">Apps ↕</th>
+        <th class="r" onclick="doSort('avg')">Avg ↕</th>
+        <th class="r" onclick="doSort('max')">Max ↕</th>
+        <th class="r" onclick="doSort('im')">IM ↕</th>
+        <th class="r" onclick="doSort('mm')">MM ↕</th>
+        <th class="r" onclick="doSort('rm')">RM ↕</th>
+        <th class="r" onclick="doSort('sch')">🏆 ↕</th>
+        <th onclick="doSort('rate')">Sel. Rate ↕</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>EMJMD InterMaths 2026 · Data: Official Selection List · <a href="https://nomantabassum38.github.io" target="_blank">Portfolio</a></div>
+  <div>Built by M. Noman Tabassum · 2026</div>
+</footer>
+
+</div>
+
+<script>
+const D=[
+{c:"PAKISTAN",f:"🇵🇰",n:35,avg:71.03,max:88.57,im:10,mm:18,rm:35,sch:0,rk:34,rate:60},
+{c:"NIGERIA",f:"🇳🇬",n:30,avg:67.89,max:85.95,im:11,mm:17,rm:30,sch:0,rk:64,rate:64.4},
+{c:"Cameroon",f:"🇨🇲",n:29,avg:64.2,max:87.13,im:8,mm:15,rm:29,sch:1,rk:50,rate:59.8},
+{c:"UGANDA",f:"🇺🇬",n:16,avg:67.74,max:84.09,im:4,mm:9,rm:16,sch:0,rk:89,rate:60.4},
+{c:"INDIA",f:"🇮🇳",n:13,avg:71.76,max:90.44,im:5,mm:8,rm:13,sch:1,rk:17,rate:66.7},
+{c:"Rwanda",f:"🇷🇼",n:10,avg:63.23,max:81.44,im:2,mm:6,rm:10,sch:0,rk:111,rate:60},
+{c:"IRAN",f:"🇮🇷",n:10,avg:68.48,max:87.4,im:4,mm:5,rm:10,sch:0,rk:45,rate:63.3},
+{c:"Kazakhstan",f:"🇰🇿",n:9,avg:72.4,max:91.25,im:3,mm:6,rm:9,sch:2,rk:14,rate:66.7},
+{c:"Spain",f:"🇪🇸",n:9,avg:86.14,max:96.69,im:7,mm:8,rm:9,sch:2,rk:4,rate:88.9},
+{c:"BANGLADESH",f:"🇧🇩",n:8,avg:76.93,max:85.75,im:4,mm:7,rm:8,sch:0,rk:68,rate:79.2},
+{c:"VIETNAM",f:"🇻🇳",n:8,avg:78.84,max:95.83,im:3,mm:7,rm:8,sch:2,rk:6,rate:75},
+{c:"United States",f:"🇺🇸",n:7,avg:85.22,max:94.59,im:6,mm:6,rm:7,sch:1,rk:8,rate:90.5},
+{c:"Sri Lanka",f:"🇱🇰",n:7,avg:60.13,max:82.05,im:2,mm:2,rm:7,sch:0,rk:106,rate:52.4},
+{c:"Egypt",f:"🇪🇬",n:7,avg:65.66,max:84.3,im:2,mm:3,rm:7,sch:0,rk:87,rate:57.1},
+{c:"China",f:"🇨🇳",n:7,avg:81.68,max:89.93,im:5,mm:6,rm:7,sch:0,rk:22,rate:85.7},
+{c:"Italy",f:"🇮🇹",n:6,avg:91.68,max:99.55,im:6,mm:6,rm:6,sch:2,rk:1,rate:100},
+{c:"GERMANY",f:"🇩🇪",n:6,avg:87.48,max:93.81,im:5,mm:6,rm:6,sch:2,rk:11,rate:88.9},
+{c:"COLOMBIA",f:"🇨🇴",n:6,avg:83.46,max:88.79,im:5,mm:6,rm:6,sch:1,rk:31,rate:94.4},
+{c:"Mexico",f:"🇲🇽",n:6,avg:81.35,max:87.35,im:3,mm:5,rm:6,sch:0,rk:46,rate:77.8},
+{c:"ECUADOR",f:"🇪🇨",n:6,avg:77.2,max:85.38,im:3,mm:5,rm:6,sch:0,rk:74,rate:77.8},
+{c:"Russia",f:"🇷🇺",n:5,avg:87.26,max:94.32,im:4,mm:5,rm:5,sch:1,rk:9,rate:93.3},
+{c:"Ukraine",f:"🇺🇦",n:5,avg:85.37,max:88.69,im:3,mm:4,rm:5,sch:0,rk:32,rate:80},
+{c:"Turkey",f:"🇹🇷",n:5,avg:76.15,max:86.15,im:2,mm:3,rm:5,sch:0,rk:60,rate:66.7},
+{c:"Ethiopia",f:"🇪🇹",n:5,avg:71.21,max:86.05,im:2,mm:3,rm:5,sch:0,rk:62,rate:66.7},
+{c:"United Kingdom",f:"🇬🇧",n:4,avg:88.2,max:90.3,im:3,mm:4,rm:4,sch:0,rk:19,rate:91.7},
+{c:"AUSTRALIA",f:"🇦🇺",n:4,avg:87.5,max:96,im:3,mm:4,rm:4,sch:1,rk:5,rate:91.7},
+{c:"Korea (South)",f:"🇰🇷",n:4,avg:89.41,max:95.62,im:4,mm:4,rm:4,sch:1,rk:7,rate:100},
+{c:"Ireland",f:"🇮🇪",n:4,avg:80.37,max:90.14,im:3,mm:3,rm:4,sch:0,rk:21,rate:83.3},
+{c:"ALGERIA",f:"🇩🇿",n:4,avg:73.21,max:80.83,im:2,mm:3,rm:4,sch:0,rk:116,rate:75},
+{c:"Brazil",f:"🇧🇷",n:4,avg:71.58,max:81.95,im:2,mm:3,rm:4,sch:0,rk:108,rate:75},
+{c:"South Africa",f:"🇿🇦",n:4,avg:85.43,max:89.76,im:3,mm:4,rm:4,sch:1,rk:24,rate:91.7},
+{c:"Lebanon",f:"🇱🇧",n:4,avg:72.58,max:86.9,im:2,mm:2,rm:4,sch:0,rk:54,rate:66.7},
+{c:"Kosovo",f:"🇽🇰",n:4,avg:80.7,max:80.7,im:1,mm:1,rm:1,sch:1,rk:118,rate:100},
+{c:"Croatia",f:"🇭🇷",n:3,avg:90.25,max:98.74,im:3,mm:3,rm:3,sch:1,rk:3,rate:100},
+{c:"Cambodia",f:"🇰🇭",n:3,avg:70.6,max:70.6,im:0,mm:1,rm:1,sch:0,rk:165,rate:66.7},
+{c:"Belgium",f:"🇧🇪",n:3,avg:83.03,max:87.05,im:2,mm:3,rm:3,sch:0,rk:51,rate:88.9},
+{c:"ARGENTINA",f:"🇦🇷",n:3,avg:76.12,max:88.5,im:2,mm:2,rm:3,sch:0,rk:35,rate:77.8},
+{c:"France",f:"🇫🇷",n:3,avg:76.83,max:84.5,im:2,mm:2,rm:3,sch:0,rk:84,rate:77.8},
+{c:"TUNISIA",f:"🇹🇳",n:3,avg:82.37,max:82.37,im:1,mm:1,rm:1,sch:0,rk:100,rate:100},
+{c:"GHANA",f:"🇬🇭",n:3,avg:70.87,max:82.1,im:1,mm:2,rm:3,sch:0,rk:105,rate:66.7},
+{c:"Latvia",f:"🇱🇻",n:3,avg:86.84,max:86.84,im:1,mm:1,rm:1,sch:0,rk:55,rate:100},
+{c:"Poland",f:"🇵🇱",n:3,avg:65.6,max:65.6,im:0,mm:0,rm:1,sch:0,rk:202,rate:33.3},
+{c:"Kenya",f:"🇰🇪",n:3,avg:60.58,max:69.4,im:0,mm:1,rm:3,sch:0,rk:174,rate:44.4},
+{c:"ZIMBABWE",f:"🇿🇼",n:3,avg:64.8,max:64.8,im:0,mm:0,rm:1,sch:0,rk:206,rate:33.3},
+{c:"Congo",f:"🇨🇬",n:3,avg:65.2,max:65.2,im:0,mm:0,rm:1,sch:0,rk:204,rate:33.3},
+{c:"THAILAND",f:"🇹🇭",n:3,avg:65.8,max:65.8,im:0,mm:0,rm:1,sch:0,rk:201,rate:33.3},
+{c:"Serbia",f:"🇷🇸",n:3,avg:61.5,max:62.5,im:0,mm:0,rm:3,sch:0,rk:221,rate:100},
+{c:"Malaysia",f:"🇲🇾",n:3,avg:61.3,max:65.4,im:0,mm:0,rm:3,sch:0,rk:203,rate:100},
+{c:"Kyrgyzstan",f:"🇰🇬",n:3,avg:63.35,max:67.8,im:0,mm:1,rm:3,sch:0,rk:187,rate:44.4},
+{c:"INDONESIA",f:"🇮🇩",n:3,avg:66.38,max:74.9,im:0,mm:1,rm:3,sch:0,rk:131,rate:44.4},
+{c:"Chile",f:"🇨🇱",n:3,avg:72.4,max:72.4,im:0,mm:1,rm:1,sch:0,rk:152,rate:66.7},
+{c:"Palestine",f:"🇵🇸",n:3,avg:76.01,max:83.27,im:1,mm:1,rm:3,sch:0,rk:96,rate:55.6},
+{c:"Lithuania",f:"🇱🇹",n:3,avg:72.6,max:72.6,im:0,mm:1,rm:1,sch:0,rk:150,rate:66.7},
+{c:"Sweden",f:"🇸🇪",n:3,avg:74.1,max:74.1,im:0,mm:1,rm:1,sch:0,rk:138,rate:66.7},
+{c:"NEPAL",f:"🇳🇵",n:3,avg:74,max:74,im:0,mm:1,rm:1,sch:0,rk:139,rate:66.7},
+{c:"MACEDONIA",f:"🇲🇰",n:3,avg:73.1,max:73.1,im:0,mm:1,rm:1,sch:0,rk:146,rate:66.7},
+{c:"The Gambia",f:"🇬🇲",n:3,avg:50.3,max:50.3,im:0,mm:0,rm:1,sch:0,rk:315,rate:33.3},
+{c:"MADAGASCAR",f:"🇲🇬",n:3,avg:50.12,max:50.25,im:0,mm:0,rm:2,sch:0,rk:316,rate:22.2},
+{c:"UZBEKISTAN",f:"🇺🇿",n:3,avg:50.43,max:51,im:0,mm:0,rm:3,sch:0,rk:308,rate:100},
+{c:"Morocco",f:"🇲🇦",n:3,avg:51.25,max:51.25,im:0,mm:0,rm:1,sch:0,rk:306,rate:33.3},
+{c:"Greece",f:"🇬🇷",n:3,avg:59.25,max:59.25,im:0,mm:0,rm:1,sch:0,rk:242,rate:33.3},
+{c:"HONDURAS",f:"🇭🇳",n:3,avg:58.25,max:58.25,im:0,mm:0,rm:1,sch:0,rk:249,rate:33.3},
+{c:"TANZANIA",f:"🇹🇿",n:3,avg:60.4,max:60.4,im:0,mm:0,rm:1,sch:0,rk:234,rate:33.3}
+];
+
+const T5=[
+{rk:1,id:"2503059",c:"Italy",f:"🇮🇹",s:99.55,q:true},
+{rk:2,id:"2522846",c:"Italy",f:"🇮🇹",s:99.16,q:true},
+{rk:3,id:"2457953",c:"Croatia",f:"🇭🇷",s:98.74,q:true},
+{rk:4,id:"2514655",c:"Spain",f:"🇪🇸",s:96.69,q:true},
+{rk:5,id:"2521687",c:"Australia",f:"🇦🇺",s:96.00,q:true}
+];
+
+let cur=[...D],col='n',dir=-1;
+
+// Animated counter
+function ctr(id,tgt,dec,dly){
+  setTimeout(()=>{let s,d=1500;const el=document.getElementById(id);
+    const fn=t=>{if(!s)s=t;const p=Math.min((t-s)/d,1);
+      el.textContent=(p*tgt).toFixed(dec);if(p<1)requestAnimationFrame(fn)};
+    requestAnimationFrame(fn)},dly);
+}
+
+// Charts
+function charts(){
+  const gc='rgba(255,255,255,0.04)',tc='#4b5563';
+
+  // Bar 1
+  const t15=D.slice(0,15);
+  new Chart(document.getElementById('c1'),{type:'bar',
+    data:{labels:t15.map(d=>d.f+' '+d.c),datasets:[{data:t15.map(d=>d.n),
+      backgroundColor:t15.map((d,i)=>d.c==='PAKISTAN'?'rgba(59,130,246,1)':`hsla(${210+i*9},60%,58%,0.7)`),
+      borderWidth:0,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} applicants`}}},
+      scales:{y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc}},
+        x:{grid:{display:false},ticks:{color:tc,maxRotation:45,font:{size:9}}}}}});
+
+  // Bar 2
+  const sc=[...D].sort((a,b)=>b.avg-a.avg).slice(0,15);
+  new Chart(document.getElementById('c2'),{type:'bar',
+    data:{labels:sc.map(d=>d.f+' '+d.c),datasets:[{data:sc.map(d=>d.avg),
+      backgroundColor:sc.map(d=>d.avg>=90?'rgba(16,185,129,.85)':d.avg>=85?'rgba(59,130,246,.85)':d.avg>=75?'rgba(245,158,11,.85)':'rgba(239,68,68,.75)'),
+      borderWidth:0,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Score: ${c.parsed.y}`}}},
+      scales:{y:{beginAtZero:true,max:100,grid:{color:gc},ticks:{color:tc}},
+        x:{grid:{display:false},ticks:{color:tc,maxRotation:45,font:{size:9}}}}}});
+
+  // Doughnut
+  const tIM=D.reduce((s,d)=>s+d.im,0),tMM=D.reduce((s,d)=>s+d.mm,0),tRM=D.reduce((s,d)=>s+d.rm,0);
+  new Chart(document.getElementById('c3'),{type:'doughnut',
+    data:{labels:['InterMaths (IM)','MathMods (MM)','RealMaths (RM)'],
+      datasets:[{data:[tIM,tMM,tRM],backgroundColor:['rgba(59,130,246,.85)','rgba(139,92,246,.85)','rgba(16,185,129,.85)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}}}}});
+}
+
+// Top 5
+function tops(){
+  const m=['🥇','🥈','🥉','4️⃣','5️⃣'],bg=['rgba(255,215,0,.12)','rgba(192,192,192,.1)','rgba(205,127,50,.1)','rgba(59,130,246,.05)','rgba(59,130,246,.05)'];
+  document.getElementById('topL').innerHTML=T5.map((p,i)=>`
+    <div class="top-item" style="background:${bg[i]}">
+      <div class="top-medal">${m[i]}</div>
+      <div class="top-info"><div class="top-id">ID: ${p.id}</div><div class="top-ctry">${p.f} ${p.c}${p.q?' · 🏆 Scholarship':''}</div></div>
+      <div class="top-sc"><div class="top-sv">${p.s}</div><div class="top-sl">Score</div></div>
+    </div>`).join('');
+}
+
+// Table
+function tbl(data){
+  data=data||cur;
+  document.getElementById('cnt').textContent=data.length+' / '+D.length+' countries';
+  document.getElementById('tb').innerHTML=data.map(r=>{
+    const pk=r.c==='PAKISTAN',rt=r.rate,
+      rc=rt>=80?'var(--green)':rt>=60?'var(--amber)':'var(--red)';
+    return `<tr class="${pk?'pak-row':''}">
+      <td class="tdc">${r.f} ${r.c}${pk?'<span class="you">YOU</span>':''}</td>
+      <td class="tdm tdr">${r.n}</td><td class="tdm tdr">${r.avg}</td><td class="tdm tdr">${r.max}</td>
+      <td class="td-im">${r.im}</td><td class="td-mm tdr">${r.mm}</td><td class="tdm tdr">${r.rm}</td>
+      <td class="tdr">${r.sch>0?`<span class="sch">${r.sch}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td><div class="rate"><span class="rate-n" style="color:${rc}">${rt}%</span><div class="rate-bar"><div class="rate-fill" style="width:${rt}%;background:${rc}"></div></div></div></td>
+    </tr>`}).join('');
+}
+
+// Sort
+function doSort(c,btn){
+  if(col===c)dir*=-1;else{col=c;dir=-1}
+  cur.sort((a,b)=>{const va=a[c],vb=b[c];return(typeof va==='string'?va.toLowerCase().localeCompare(vb.toLowerCase()):va-vb)*dir});
+  if(btn){document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+  tbl();
+}
+
+// Filter
+function doFilter(){const q=document.getElementById('q').value.toLowerCase();tbl(cur.filter(r=>r.c.toLowerCase().includes(q)))}
+
+// Tabs
+function tabClick(btn,tab){
+  document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  switch(tab){
+    case 'sch':cur=D.filter(d=>d.sch>0);break;
+    case 'top':cur=D.filter(d=>d.avg>=85);break;
+    case 'sel':cur=D.filter(d=>d.im>0);break;
+    default:cur=[...D];
   }
+  document.getElementById('q').value='';
+  col='n';dir=-1;
+  tbl();
+}
 
-  // ─── CHARTS ─────────────────────────────────────────────────────
-  function initCharts() {
-    const gridCol = 'rgba(255,255,255,0.05)';
-    const tickCol = '#475569';
-
-    // Applicants bar
-    const top15 = DATA.slice(0, 15);
-    new Chart(document.getElementById('chart-country'), {
-      type: 'bar',
-      data: {
-        labels: top15.map(d => d.flag + ' ' + d.c),
-        datasets: [{
-          data: top15.map(d => d.n),
-          backgroundColor: top15.map((d, i) =>
-            d.c === 'PAKISTAN' ? 'rgba(59,130,246,1)' : `hsla(${210 + i * 9},65%,60%,0.75)`
-          ),
-          borderWidth: 0, borderRadius: 5
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y} applicants` } } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: gridCol }, ticks: { color: tickCol } },
-          x: { grid: { display: false }, ticks: { color: tickCol, maxRotation: 45, font: { size: 10 } } }
-        }
-      }
-    });
-
-    // Score bar
-    const scoreTop = [...DATA].sort((a, b) => b.avg - a.avg).slice(0, 15);
-    new Chart(document.getElementById('chart-score'), {
-      type: 'bar',
-      data: {
-        labels: scoreTop.map(d => d.flag + ' ' + d.c),
-        datasets: [{
-          data: scoreTop.map(d => d.avg),
-          backgroundColor: scoreTop.map(d =>
-            d.avg >= 90 ? 'rgba(16,185,129,0.85)' :
-            d.avg >= 85 ? 'rgba(59,130,246,0.85)' :
-            d.avg >= 75 ? 'rgba(245,158,11,0.85)' :
-            'rgba(239,68,68,0.75)'
-          ),
-          borderWidth: 0, borderRadius: 5
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `Score: ${c.parsed.y}` } } },
-        scales: {
-          y: { beginAtZero: true, max: 100, grid: { color: gridCol }, ticks: { color: tickCol } },
-          x: { grid: { display: false }, ticks: { color: tickCol, maxRotation: 45, font: { size: 10 } } }
-        }
-      }
-    });
-
-    // Doughnut
-    const totalIM = DATA.reduce((s, d) => s + d.im, 0);
-    const totalMM = DATA.reduce((s, d) => s + d.mm, 0);
-    const totalRM = DATA.reduce((s, d) => s + d.rm, 0);
-    new Chart(document.getElementById('chart-program'), {
-      type: 'doughnut',
-      data: {
-        labels: ['InterMaths (IM)', 'MathMods (MM)', 'RealMaths (RM)'],
-        datasets: [{ data: [totalIM, totalMM, totalRM], backgroundColor: ['rgba(59,130,246,0.85)', 'rgba(139,92,246,0.85)', 'rgba(16,185,129,0.85)'], borderWidth: 0 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '65%',
-        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 10 } } }
-      }
-    });
-
-    // Program totals under chart
-    document.getElementById('program-totals').innerHTML = [
-      { label: 'IM', val: totalIM, color: '#3b82f6' },
-      { label: 'MM', val: totalMM, color: '#8b5cf6' },
-      { label: 'RM', val: totalRM, color: '#10b981' }
-    ].map(p => `<span style="font-family:'Roboto Mono',monospace;font-size:0.7rem;color:${p.color};background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:6px;border:1px solid ${p.color}33;">${p.label}: ${p.val}</span>`).join('');
-  }
-
-  // ─── TOP PERFORMERS ──────────────────────────────────────────────
-  function renderTop() {
-    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-    const golds = ['rgba(255,215,0,0.15)', 'rgba(192,192,192,0.12)', 'rgba(205,127,50,0.12)', 'rgba(59,130,246,0.06)', 'rgba(59,130,246,0.06)'];
-    document.getElementById('top-list').innerHTML = TOP5.map((p, i) => `
-      <div class="top-item" style="background:${golds[i]}">
-        <div class="top-medal">${medals[i]}</div>
-        <div class="top-info">
-          <div class="top-id">ID: ${p.id}</div>
-          <div class="top-country">${p.flag} ${p.country}${p.scholarship ? ' · 🏆 Scholarship' : ''}</div>
-        </div>
-        <div class="top-score">
-          <div class="top-score-val">${p.score}</div>
-          <div class="top-score-lbl">Score</div>
-        </div>
-      </div>`).join('');
-  }
-
-  // ─── TABLE ───────────────────────────────────────────────────────
-  function renderTable(data) {
-    data = data || currentData;
-    document.getElementById('row-count').textContent = `${data.length} / ${DATA.length} countries`;
-    document.getElementById('table-body').innerHTML = data.map(row => {
-      const isPak = row.c === 'PAKISTAN';
-      const rate = row.rate;
-      const rc = rate >= 80 ? '#10b981' : rate >= 60 ? '#f59e0b' : '#ef4444';
-      return `<tr class="${isPak ? 'pak-row' : ''}">
-        <td class="td-country">${row.flag} ${row.c}${isPak ? '<span class="you-badge">YOU</span>' : ''}</td>
-        <td class="td-num td-r">${row.n}</td>
-        <td class="td-num td-r">${row.avg}</td>
-        <td class="td-num td-r">${row.max}</td>
-        <td class="td-im">${row.im}</td>
-        <td class="td-mm td-r">${row.mm}</td>
-        <td class="td-num td-r">${row.rm}</td>
-        <td class="td-r">${row.sch > 0 ? `<span class="scholar-badge">${row.sch}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
-        <td>
-          <div class="rate-cell">
-            <span class="rate-num" style="color:${rc}">${rate}%</span>
-            <div class="rate-bar-wrap"><div class="rate-bar" style="width:${rate}%;background:${rc}"></div></div>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ─── SORT ────────────────────────────────────────────────────────
-  const colMap = { Total_Applicants:'n', Avg_Score:'avg', Scholarships_Awarded:'sch', Selection_Rate:'rate' };
-  function sortBy(col, btn) {
-    const field = colMap[col] || col;
-    if (sortCol === field) sortDir *= -1; else { sortCol = field; sortDir = -1; }
-    currentData.sort((a, b) => {
-      const vA = a[field], vB = b[field];
-      return (vA < vB ? -1 : vA > vB ? 1 : 0) * sortDir;
-    });
-    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    renderTable();
-  }
-
-  // ─── FILTER ──────────────────────────────────────────────────────
-  function filterTable() {
-    const q = document.getElementById('search-box').value.toLowerCase();
-    renderTable(currentData.filter(r => r.c.toLowerCase().includes(q)));
-  }
-
-  // ─── TABS ────────────────────────────────────────────────────────
-  function switchTab(btn, tab) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    switch (tab) {
-      case 'awarded':  currentData = DATA.filter(d => d.sch > 0); break;
-      case 'top':      currentData = DATA.filter(d => d.avg >= 85); break;
-      case 'selected': currentData = DATA.filter(d => d.im > 0); break;
-      default:         currentData = [...DATA];
-    }
-    renderTable();
-  }
-
-  // ─── INIT ────────────────────────────────────────────────────────
-  function init() {
-    counter('kpi-total',       319,  0, 0);
-    counter('kpi-countries',    64,  0, 180);
-    counter('kpi-scholarships', 20,  0, 360);
-    counter('kpi-avg',        71.8,  1, 540);
-    initCharts();
-    renderTop();
-    renderTable();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-  </script>
-  <!-- Chart.js loaded AFTER our script so it renders charts reliably -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="if(typeof initCharts==='function')initCharts()"></script>
+// Init
+function init(){
+  ctr('k1',319,0,0);ctr('k2',64,0,200);ctr('k3',20,0,400);ctr('k4',71.8,1,600);
+  charts();tops();tbl();
+}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+</script>
 </body>
 </html>
