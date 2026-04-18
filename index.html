@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
   <style>
     :root {
       --bg: #07090f;
@@ -678,55 +678,69 @@
 
   <script>
   const DATA = [
-    {c:"PAKISTAN",   flag:"🇵🇰", n:35, avg:71.03, max:88.57, im:10, mm:18, rm:35, sch:0, rank:34,  rate:60.0},
-    {c:"NIGERIA",    flag:"🇳🇬", n:30, avg:67.89, max:85.95, im:11, mm:17, rm:30, sch:0, rank:64,  rate:64.4},
-    {c:"Cameroon",   flag:"🇨🇲", n:29, avg:64.20, max:87.13, im:8,  mm:15, rm:29, sch:1, rank:50,  rate:59.8},
-    {c:"UGANDA",     flag:"🇺🇬", n:16, avg:67.74, max:84.09, im:4,  mm:9,  rm:16, sch:0, rank:89,  rate:60.4},
-    {c:"INDIA",      flag:"🇮🇳", n:13, avg:71.76, max:90.44, im:5,  mm:8,  rm:13, sch:1, rank:17,  rate:66.7},
-    {c:"Rwanda",     flag:"🇷🇼", n:10, avg:63.23, max:81.44, im:2,  mm:6,  rm:10, sch:0, rank:111, rate:60.0},
-    {c:"IRAN",       flag:"🇮🇷", n:10, avg:68.48, max:87.40, im:4,  mm:5,  rm:10, sch:0, rank:45,  rate:63.3},
-    {c:"Kazakhstan", flag:"🇰🇿", n:9,  avg:72.40, max:91.25, im:3,  mm:6,  rm:9,  sch:2, rank:14,  rate:66.7},
-    {c:"Spain",      flag:"🇪🇸", n:9,  avg:86.14, max:96.69, im:7,  mm:8,  rm:9,  sch:2, rank:4,   rate:88.9},
-    {c:"BANGLADESH", flag:"🇧🇩", n:8,  avg:76.93, max:85.75, im:4,  mm:7,  rm:8,  sch:0, rank:68,  rate:79.2},
-    {c:"VIETNAM",    flag:"🇻🇳", n:8,  avg:78.84, max:95.83, im:3,  mm:7,  rm:8,  sch:2, rank:6,   rate:75.0},
-    {c:"USA",        flag:"🇺🇸", n:7,  avg:85.22, max:94.59, im:6,  mm:6,  rm:7,  sch:1, rank:8,   rate:90.5},
-    {c:"Sri Lanka",  flag:"🇱🇰", n:7,  avg:60.13, max:82.05, im:2,  mm:2,  rm:7,  sch:0, rank:106, rate:52.4},
-    {c:"Egypt",      flag:"🇪🇬", n:7,  avg:65.66, max:84.30, im:2,  mm:3,  rm:7,  sch:0, rank:87,  rate:57.1},
-    {c:"China",      flag:"🇨🇳", n:7,  avg:81.68, max:89.93, im:5,  mm:6,  rm:7,  sch:0, rank:22,  rate:85.7},
-    {c:"Italy",      flag:"🇮🇹", n:6,  avg:91.68, max:99.55, im:6,  mm:6,  rm:6,  sch:2, rank:1,   rate:100.0},
-    {c:"GERMANY",    flag:"🇩🇪", n:6,  avg:87.48, max:93.81, im:5,  mm:6,  rm:6,  sch:2, rank:11,  rate:88.9},
-    {c:"COLOMBIA",   flag:"🇨🇴", n:6,  avg:83.46, max:88.79, im:5,  mm:6,  rm:6,  sch:1, rank:31,  rate:94.4},
-    {c:"Mexico",     flag:"🇲🇽", n:6,  avg:81.35, max:87.35, im:3,  mm:5,  rm:6,  sch:0, rank:46,  rate:77.8},
-    {c:"ECUADOR",    flag:"🇪🇨", n:6,  avg:77.20, max:85.38, im:3,  mm:5,  rm:6,  sch:0, rank:74,  rate:77.8},
-    {c:"Russia",     flag:"🇷🇺", n:5,  avg:87.26, max:94.32, im:4,  mm:5,  rm:5,  sch:1, rank:9,   rate:93.3},
-    {c:"Ukraine",    flag:"🇺🇦", n:5,  avg:85.37, max:88.69, im:3,  mm:4,  rm:5,  sch:0, rank:32,  rate:80.0},
-    {c:"Turkey",     flag:"🇹🇷", n:5,  avg:76.15, max:86.15, im:2,  mm:3,  rm:5,  sch:0, rank:60,  rate:66.7},
-    {c:"Ethiopia",   flag:"🇪🇹", n:5,  avg:71.21, max:86.05, im:2,  mm:3,  rm:5,  sch:0, rank:62,  rate:66.7},
-    {c:"UK",         flag:"🇬🇧", n:4,  avg:88.20, max:90.30, im:3,  mm:4,  rm:4,  sch:0, rank:19,  rate:91.7},
-    {c:"AUSTRALIA",  flag:"🇦🇺", n:4,  avg:87.50, max:96.00, im:3,  mm:4,  rm:4,  sch:1, rank:5,   rate:91.7},
-    {c:"KoreaSouth", flag:"🇰🇷", n:4,  avg:89.41, max:95.62, im:4,  mm:4,  rm:4,  sch:1, rank:7,   rate:100.0},
-    {c:"SouthAfrica",flag:"🇿🇦", n:4,  avg:85.43, max:89.76, im:3,  mm:4,  rm:4,  sch:1, rank:24,  rate:91.7},
-    {c:"Croatia",    flag:"🇭🇷", n:3,  avg:90.25, max:98.74, im:3,  mm:3,  rm:3,  sch:1, rank:3,   rate:100.0},
-    {c:"Belgium",    flag:"🇧🇪", n:3,  avg:83.03, max:87.05, im:2,  mm:3,  rm:3,  sch:0, rank:51,  rate:88.9},
-    {c:"ARGENTINA",  flag:"🇦🇷", n:3,  avg:76.12, max:88.50, im:2,  mm:2,  rm:3,  sch:0, rank:35,  rate:77.8},
-    {c:"France",     flag:"🇫🇷", n:3,  avg:76.83, max:84.50, im:2,  mm:2,  rm:3,  sch:0, rank:84,  rate:77.8},
-    {c:"GHANA",      flag:"🇬🇭", n:3,  avg:70.87, max:82.10, im:1,  mm:2,  rm:3,  sch:0, rank:105, rate:66.7},
-    {c:"Latvia",     flag:"🇱🇻", n:3,  avg:86.84, max:86.84, im:1,  mm:1,  rm:1,  sch:0, rank:55,  rate:100.0},
-    {c:"Indonesia",  flag:"🇮🇩", n:3,  avg:66.38, max:74.90, im:0,  mm:1,  rm:3,  sch:0, rank:131, rate:44.4},
-    {c:"Kenya",      flag:"🇰🇪", n:3,  avg:60.58, max:69.40, im:0,  mm:1,  rm:3,  sch:0, rank:174, rate:44.4},
-    {c:"ALGERIA",    flag:"🇩🇿", n:4,  avg:73.21, max:80.83, im:2,  mm:3,  rm:4,  sch:0, rank:116, rate:75.0},
-    {c:"Brazil",     flag:"🇧🇷", n:4,  avg:71.58, max:81.95, im:2,  mm:3,  rm:4,  sch:0, rank:108, rate:75.0},
-    {c:"Lebanon",    flag:"🇱🇧", n:4,  avg:72.58, max:86.90, im:2,  mm:2,  rm:4,  sch:0, rank:54,  rate:66.7},
-    {c:"Kosovo",     flag:"🇽🇰", n:4,  avg:80.70, max:80.70, im:1,  mm:1,  rm:1,  sch:1, rank:118, rate:100.0},
-    {c:"Ireland",    flag:"🇮🇪", n:4,  avg:80.37, max:90.14, im:3,  mm:3,  rm:4,  sch:0, rank:21,  rate:83.3},
-    {c:"Chile",      flag:"🇨🇱", n:3,  avg:72.40, max:72.40, im:0,  mm:1,  rm:1,  sch:0, rank:152, rate:66.7},
-    {c:"Sweden",     flag:"🇸🇪", n:3,  avg:74.10, max:74.10, im:0,  mm:1,  rm:1,  sch:0, rank:138, rate:66.7},
-    {c:"Malaysia",   flag:"🇲🇾", n:3,  avg:61.30, max:65.40, im:0,  mm:0,  rm:3,  sch:0, rank:203, rate:100.0},
-    {c:"Serbia",     flag:"🇷🇸", n:3,  avg:61.50, max:62.50, im:0,  mm:0,  rm:3,  sch:0, rank:221, rate:100.0},
-    {c:"Poland",     flag:"🇵🇱", n:3,  avg:65.60, max:65.60, im:0,  mm:0,  rm:1,  sch:0, rank:202, rate:33.3},
-    {c:"Morocco",    flag:"🇲🇦", n:3,  avg:51.25, max:51.25, im:0,  mm:0,  rm:1,  sch:0, rank:306, rate:33.3},
-    {c:"NEPAL",      flag:"🇳🇵", n:3,  avg:74.00, max:74.00, im:0,  mm:1,  rm:1,  sch:0, rank:139, rate:66.7},
-    {c:"Palestine",  flag:"🇵🇸", n:3,  avg:76.01, max:83.27, im:1,  mm:1,  rm:3,  sch:0, rank:96,  rate:55.6},
+    {c:"PAKISTAN",        flag:"🇵🇰", n:35, avg:71.03, max:88.57, min:56.80, im:10, mm:18, rm:35, sch:0, rank:34,  rate:60.0},
+    {c:"NIGERIA",         flag:"🇳🇬", n:30, avg:67.89, max:85.95, min:54.10, im:11, mm:17, rm:30, sch:0, rank:64,  rate:64.4},
+    {c:"Cameroon",        flag:"🇨🇲", n:29, avg:64.20, max:87.13, min:50.40, im:8,  mm:15, rm:29, sch:1, rank:50,  rate:59.8},
+    {c:"UGANDA",          flag:"🇺🇬", n:16, avg:67.74, max:84.09, min:53.75, im:4,  mm:9,  rm:16, sch:0, rank:89,  rate:60.4},
+    {c:"INDIA",           flag:"🇮🇳", n:13, avg:71.76, max:90.44, min:53.35, im:5,  mm:8,  rm:13, sch:1, rank:17,  rate:66.7},
+    {c:"Rwanda",          flag:"🇷🇼", n:10, avg:63.23, max:81.44, min:51.30, im:2,  mm:6,  rm:10, sch:0, rank:111, rate:60.0},
+    {c:"IRAN",            flag:"🇮🇷", n:10, avg:68.48, max:87.40, min:53.85, im:4,  mm:5,  rm:10, sch:0, rank:45,  rate:63.3},
+    {c:"Kazakhstan",      flag:"🇰🇿", n:9,  avg:72.40, max:91.25, min:52.55, im:3,  mm:6,  rm:9,  sch:2, rank:14,  rate:66.7},
+    {c:"Spain",           flag:"🇪🇸", n:9,  avg:86.14, max:96.69, min:63.70, im:7,  mm:8,  rm:9,  sch:2, rank:4,   rate:88.9},
+    {c:"BANGLADESH",      flag:"🇧🇩", n:8,  avg:76.93, max:85.75, min:60.00, im:4,  mm:7,  rm:8,  sch:0, rank:68,  rate:79.2},
+    {c:"VIETNAM",         flag:"🇻🇳", n:8,  avg:78.84, max:95.83, min:64.15, im:3,  mm:7,  rm:8,  sch:2, rank:6,   rate:75.0},
+    {c:"United States",   flag:"🇺🇸", n:7,  avg:85.22, max:94.59, min:64.40, im:6,  mm:6,  rm:7,  sch:1, rank:8,   rate:90.5},
+    {c:"Sri Lanka",       flag:"🇱🇰", n:7,  avg:60.13, max:82.05, min:50.80, im:2,  mm:2,  rm:7,  sch:0, rank:106, rate:52.4},
+    {c:"Egypt",           flag:"🇪🇬", n:7,  avg:65.66, max:84.30, min:54.90, im:2,  mm:3,  rm:7,  sch:0, rank:87,  rate:57.1},
+    {c:"China",           flag:"🇨🇳", n:7,  avg:81.68, max:89.93, min:64.50, im:5,  mm:6,  rm:7,  sch:0, rank:22,  rate:85.7},
+    {c:"Italy",           flag:"🇮🇹", n:6,  avg:91.68, max:99.55, min:84.40, im:6,  mm:6,  rm:6,  sch:2, rank:1,   rate:100.0},
+    {c:"GERMANY",         flag:"🇩🇪", n:6,  avg:87.48, max:93.81, min:87.83, im:5,  mm:6,  rm:6,  sch:2, rank:11,  rate:88.9},
+    {c:"COLOMBIA",        flag:"🇨🇴", n:6,  avg:83.46, max:88.79, min:80.90, im:5,  mm:6,  rm:6,  sch:1, rank:31,  rate:94.4},
+    {c:"Mexico",          flag:"🇲🇽", n:6,  avg:81.35, max:87.35, min:72.50, im:3,  mm:5,  rm:6,  sch:0, rank:46,  rate:77.8},
+    {c:"ECUADOR",         flag:"🇪🇨", n:6,  avg:77.20, max:85.38, min:70.50, im:3,  mm:5,  rm:6,  sch:0, rank:74,  rate:77.8},
+    {c:"Russia",          flag:"🇷🇺", n:5,  avg:87.26, max:94.32, min:89.46, im:4,  mm:5,  rm:5,  sch:1, rank:9,   rate:93.3},
+    {c:"Ukraine",         flag:"🇺🇦", n:5,  avg:85.37, max:88.69, min:85.70, im:3,  mm:4,  rm:5,  sch:0, rank:32,  rate:80.0},
+    {c:"Turkey",          flag:"🇹🇷", n:5,  avg:76.15, max:86.15, min:71.25, im:2,  mm:3,  rm:5,  sch:0, rank:60,  rate:66.7},
+    {c:"Ethiopia",        flag:"🇪🇹", n:5,  avg:71.21, max:86.05, min:56.50, im:2,  mm:3,  rm:5,  sch:0, rank:62,  rate:66.7},
+    {c:"United Kingdom",  flag:"🇬🇧", n:4,  avg:88.20, max:90.30, min:86.20, im:3,  mm:4,  rm:4,  sch:0, rank:19,  rate:91.7},
+    {c:"AUSTRALIA",       flag:"🇦🇺", n:4,  avg:87.50, max:96.00, min:84.99, im:3,  mm:4,  rm:4,  sch:1, rank:5,   rate:91.7},
+    {c:"Korea (South)",   flag:"🇰🇷", n:4,  avg:89.41, max:95.62, min:83.81, im:4,  mm:4,  rm:4,  sch:1, rank:7,   rate:100.0},
+    {c:"Ireland",         flag:"🇮🇪", n:4,  avg:80.37, max:90.14, min:71.00, im:3,  mm:3,  rm:4,  sch:0, rank:21,  rate:83.3},
+    {c:"ALGERIA",         flag:"🇩🇿", n:4,  avg:73.21, max:80.83, min:66.00, im:2,  mm:3,  rm:4,  sch:0, rank:116, rate:75.0},
+    {c:"Brazil",          flag:"🇧🇷", n:4,  avg:71.58, max:81.95, min:59.60, im:2,  mm:3,  rm:4,  sch:0, rank:108, rate:75.0},
+    {c:"South Africa",    flag:"🇿🇦", n:4,  avg:85.43, max:89.76, min:86.10, im:3,  mm:4,  rm:4,  sch:1, rank:24,  rate:91.7},
+    {c:"Lebanon",         flag:"🇱🇧", n:4,  avg:72.58, max:86.90, min:54.40, im:2,  mm:2,  rm:4,  sch:0, rank:54,  rate:66.7},
+    {c:"Kosovo",          flag:"🇽🇰", n:4,  avg:80.70, max:80.70, min:80.70, im:1,  mm:1,  rm:1,  sch:1, rank:118, rate:100.0},
+    {c:"Croatia",         flag:"🇭🇷", n:3,  avg:90.25, max:98.74, min:82.37, im:3,  mm:3,  rm:3,  sch:1, rank:3,   rate:100.0},
+    {c:"Cambodia",        flag:"🇰🇭", n:3,  avg:70.60, max:70.60, min:70.60, im:0,  mm:1,  rm:1,  sch:0, rank:165, rate:66.7},
+    {c:"Belgium",         flag:"🇧🇪", n:3,  avg:83.03, max:87.05, min:79.00, im:2,  mm:3,  rm:3,  sch:0, rank:51,  rate:88.9},
+    {c:"ARGENTINA",       flag:"🇦🇷", n:3,  avg:76.12, max:88.50, min:52.85, im:2,  mm:2,  rm:3,  sch:0, rank:35,  rate:77.8},
+    {c:"France",          flag:"🇫🇷", n:3,  avg:76.83, max:84.50, min:73.00, im:2,  mm:2,  rm:3,  sch:0, rank:84,  rate:77.8},
+    {c:"TUNISIA",         flag:"🇹🇳", n:3,  avg:82.37, max:82.37, min:82.37, im:1,  mm:1,  rm:1,  sch:0, rank:100, rate:100.0},
+    {c:"GHANA",           flag:"🇬🇭", n:3,  avg:70.87, max:82.10, min:52.05, im:1,  mm:2,  rm:3,  sch:0, rank:105, rate:66.7},
+    {c:"Latvia",          flag:"🇱🇻", n:3,  avg:86.84, max:86.84, min:86.84, im:1,  mm:1,  rm:1,  sch:0, rank:55,  rate:100.0},
+    {c:"Poland",          flag:"🇵🇱", n:3,  avg:65.60, max:65.60, min:65.60, im:0,  mm:0,  rm:1,  sch:0, rank:202, rate:33.3},
+    {c:"Kenya",           flag:"🇰🇪", n:3,  avg:60.58, max:69.40, min:53.50, im:0,  mm:1,  rm:3,  sch:0, rank:174, rate:44.4},
+    {c:"ZIMBABWE",        flag:"🇿🇼", n:3,  avg:64.80, max:64.80, min:64.80, im:0,  mm:0,  rm:1,  sch:0, rank:206, rate:33.3},
+    {c:"Congo",           flag:"🇨🇬", n:3,  avg:65.20, max:65.20, min:65.20, im:0,  mm:0,  rm:1,  sch:0, rank:204, rate:33.3},
+    {c:"THAILAND",        flag:"🇹🇭", n:3,  avg:65.80, max:65.80, min:65.80, im:0,  mm:0,  rm:1,  sch:0, rank:201, rate:33.3},
+    {c:"Serbia",          flag:"🇷🇸", n:3,  avg:61.50, max:62.50, min:59.90, im:0,  mm:0,  rm:3,  sch:0, rank:221, rate:100.0},
+    {c:"Malaysia",        flag:"🇲🇾", n:3,  avg:61.30, max:65.40, min:57.10, im:0,  mm:0,  rm:3,  sch:0, rank:203, rate:100.0},
+    {c:"Kyrgyzstan",      flag:"🇰🇬", n:3,  avg:63.35, max:67.80, min:51.75, im:0,  mm:1,  rm:3,  sch:0, rank:187, rate:44.4},
+    {c:"INDONESIA",       flag:"🇮🇩", n:3,  avg:66.38, max:74.90, min:61.75, im:0,  mm:1,  rm:3,  sch:0, rank:131, rate:44.4},
+    {c:"Chile",           flag:"🇨🇱", n:3,  avg:72.40, max:72.40, min:72.40, im:0,  mm:1,  rm:1,  sch:0, rank:152, rate:66.7},
+    {c:"Palestine",       flag:"🇵🇸", n:3,  avg:76.01, max:83.27, min:68.75, im:1,  mm:1,  rm:3,  sch:0, rank:96,  rate:55.6},
+    {c:"Lithuania",       flag:"🇱🇹", n:3,  avg:72.60, max:72.60, min:72.60, im:0,  mm:1,  rm:1,  sch:0, rank:150, rate:66.7},
+    {c:"Sweden",          flag:"🇸🇪", n:3,  avg:74.10, max:74.10, min:74.10, im:0,  mm:1,  rm:1,  sch:0, rank:138, rate:66.7},
+    {c:"NEPAL",           flag:"🇳🇵", n:3,  avg:74.00, max:74.00, min:74.00, im:0,  mm:1,  rm:1,  sch:0, rank:139, rate:66.7},
+    {c:"MACEDONIA",       flag:"🇲🇰", n:3,  avg:73.10, max:73.10, min:73.10, im:0,  mm:1,  rm:1,  sch:0, rank:146, rate:66.7},
+    {c:"The Gambia",      flag:"🇬🇲", n:3,  avg:50.30, max:50.30, min:50.30, im:0,  mm:0,  rm:1,  sch:0, rank:315, rate:33.3},
+    {c:"MADAGASCAR",      flag:"🇲🇬", n:3,  avg:50.12, max:50.25, min:50.00, im:0,  mm:0,  rm:2,  sch:0, rank:316, rate:22.2},
+    {c:"UZBEKISTAN",      flag:"🇺🇿", n:3,  avg:50.43, max:51.00, min:50.10, im:0,  mm:0,  rm:3,  sch:0, rank:308, rate:100.0},
+    {c:"Morocco",         flag:"🇲🇦", n:3,  avg:51.25, max:51.25, min:51.25, im:0,  mm:0,  rm:1,  sch:0, rank:306, rate:33.3},
+    {c:"Greece",          flag:"🇬🇷", n:3,  avg:59.25, max:59.25, min:59.25, im:0,  mm:0,  rm:1,  sch:0, rank:242, rate:33.3},
+    {c:"HONDURAS",        flag:"🇭🇳", n:3,  avg:58.25, max:58.25, min:58.25, im:0,  mm:0,  rm:1,  sch:0, rank:249, rate:33.3},
+    {c:"TANZANIA",        flag:"🇹🇿", n:3,  avg:60.40, max:60.40, min:60.40, im:0,  mm:0,  rm:1,  sch:0, rank:234, rate:33.3},
   ];
 
   const TOP5 = [
@@ -882,7 +896,7 @@
   }
 
   // ─── SORT ────────────────────────────────────────────────────────
-  const colMap = { n:'n', Avg_Score:'avg', Scholarships_Awarded:'sch', Selection_Rate:'rate' };
+  const colMap = { Total_Applicants:'n', Avg_Score:'avg', Scholarships_Awarded:'sch', Selection_Rate:'rate' };
   function sortBy(col, btn) {
     const field = colMap[col] || col;
     if (sortCol === field) sortDir *= -1; else { sortCol = field; sortDir = -1; }
@@ -928,5 +942,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
   </script>
+  <!-- Chart.js loaded AFTER our script so it renders charts reliably -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="if(typeof initCharts==='function')initCharts()"></script>
 </body>
 </html>
